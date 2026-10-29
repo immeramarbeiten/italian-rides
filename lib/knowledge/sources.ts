@@ -1,0 +1,260 @@
+import type { EvidenceTier, LicenseStatus } from "./evidence";
+
+/**
+ * First-class source registry (knowledge-foundation §6).
+ * Every technical fact, image, manual reference and business record points
+ * here. `locator` is a human-findable pointer; `url` is only set when the
+ * exact address is confirmed — never guessed.
+ */
+export type SourceRecord = {
+  id: string;
+  publisher: string;
+  title: string;
+  bestUse: string;
+  limitation: string;
+  /** Human-findable pointer, e.g. "SIP Scootershop — Modelbase, P125X entry". */
+  locator: string;
+  url: string | null;
+  retrievedAt: string | null;
+  appliesTo: string;
+  license: LicenseStatus;
+  evidence: EvidenceTier;
+};
+
+export const SOURCES: SourceRecord[] = [
+  {
+    id: "piaggio-press",
+    publisher: "Piaggio",
+    title: "Historical press archive",
+    bestUse: "Chronology, landmark models, historical photography, advertising",
+    limitation: "Image reuse rights need confirmation",
+    locator: "Piaggio Group press archive — Vespa historical collection",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Editorial timeline (98, GS 150, 50, Primavera, PX, later models)",
+    license: "link-only",
+    evidence: "community",
+  },
+  {
+    id: "piaggio-archive",
+    publisher: "Piaggio",
+    title: "Historical Archive (Archivio Storico)",
+    bestUse: "Original engineering and historical records",
+    limitation: "Research access by appointment",
+    locator: "Piaggio Historical Archive, Pontedera — appointment only",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Future variant reconciliation",
+    license: "restricted",
+    evidence: "unverified",
+  },
+  {
+    id: "vespa-timeline",
+    publisher: "Vespa / Piaggio",
+    title: "Official Vespa timeline",
+    bestUse: "Historical stories and cultural context",
+    limitation: "Editorial overview, not a technical catalogue",
+    locator: "Official Vespa website — history/timeline section",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Editorial stories",
+    license: "link-only",
+    evidence: "community",
+  },
+  {
+    id: "sip-modelbase",
+    publisher: "SIP Scootershop",
+    title: "SIP Modelbase",
+    bestUse: "Variant-specific specs, frame identifiers, exploded diagrams",
+    limitation: "Commercial content; obtain permission for reuse",
+    locator: "SIP Scootershop — Modelbase, P125X / VNX1T entry",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "P125X pilot variant identity",
+    license: "link-only",
+    evidence: "community",
+  },
+  {
+    id: "scooterhelp",
+    publisher: "Scooterhelp",
+    title: "Historic manuals collection",
+    bestUse: "Owner, service and parts manuals incl. P125X/P150X/P200E repair books",
+    limitation: "Incomplete collection; scans require rights checks",
+    locator: "Scooterhelp — Vespa manuals library",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Future procedure verification",
+    license: "unknown",
+    evidence: "unverified",
+  },
+  {
+    id: "piaggio-rmi",
+    publisher: "Piaggio",
+    title: "Repair & Maintenance Information (RMI)",
+    bestUse: "Professional repair data, parts catalogues, technical notes",
+    limitation: "Restricted professional access and payment",
+    locator: "Piaggio RMI portal — licensed access",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Potential licensing/partnership source, not a scraping target",
+    license: "restricted",
+    evidence: "unverified",
+  },
+  {
+    id: "vespa-register",
+    publisher: "Vespa Historical Register",
+    title: "Historical Register",
+    bestUse: "Restoration authenticity and model history",
+    limitation: "Expert registration is not automatically open data",
+    locator: "Vespa Historical Register — model records",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Future provenance work",
+    license: "restricted",
+    evidence: "unverified",
+  },
+  {
+    id: "vespa-world-club",
+    publisher: "Vespa World Club",
+    title: "Vespa World Club",
+    bestUse: "National associations and global community",
+    limitation: "Local clubs need separate verification",
+    locator: "Vespa World Club — member clubs listing, events announcements",
+    url: null,
+    retrievedAt: "2026-10-27",
+    appliesTo: "Club hierarchy, Vespa World Days 2027 announcement",
+    license: "link-only",
+    evidence: "community",
+  },
+  {
+    id: "vespa-club-austria",
+    publisher: "Vespa Club Austria",
+    title: "Vespa Club Austria",
+    bestUse: "Austrian clubs, workshops and events",
+    limitation: "Entries and contacts need freshness checks",
+    locator: "Vespa Club Austria — member associations, specialist references",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Austrian club scene (counts observed, not yet verified)",
+    license: "link-only",
+    evidence: "community",
+  },
+  {
+    id: "vespa-austria-service",
+    publisher: "Vespa Austria",
+    title: "Service network & intervals",
+    bestUse: "Official maintenance and repair-network references",
+    limitation: "Does not cover every independent specialist",
+    locator: "Vespa Austria — authorised repair-network locator, service intervals",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Future workshop + maintenance-interval research",
+    license: "link-only",
+    evidence: "unverified",
+  },
+  {
+    id: "wikimedia-commons",
+    publisher: "Wikimedia Commons",
+    title: "Wikimedia Commons Vespa photography",
+    bestUse: "Licensed display photographs with per-file attribution",
+    limitation: "Licence must be checked per file before public launch",
+    locator: "See public/frieze/CREDITS.txt for exact files, authors and URLs",
+    url: "https://commons.wikimedia.org",
+    retrievedAt: "2026-10-27",
+    appliesTo: "8 frieze photographs",
+    license: "permitted",
+    evidence: "community",
+  },
+  {
+    id: "italian-rides-original",
+    publisher: "Italian Rides",
+    title: "Original renders & editorial",
+    bestUse: "Blender turntables, hero stills, paraphrased archive copy",
+    limitation: "Renders are stylised, not measured geometry",
+    locator: "design/blender/*.py, public/frieze/*.png",
+    url: null,
+    retrievedAt: "2026-10-27",
+    appliesTo: "Hero + series renders, editorial blurbs",
+    license: "original",
+    evidence: "community",
+  },
+  {
+    id: "classic-com",
+    publisher: "CLASSIC.COM",
+    title: "Market transaction evidence",
+    bestUse: "Sold/asking prices with condition and date",
+    limitation: "Scope the query; a restored rarity ≠ an everyday example",
+    locator: "CLASSIC.COM — Vespa market listings (research phase)",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Future market-value research",
+    license: "link-only",
+    evidence: "unverified",
+  },
+  {
+    id: "vespa-vintage",
+    publisher: "Piaggio",
+    title: "Vespa Vintage origin documentation",
+    bestUse: "Official vehicle-origin certificates",
+    limitation: "Establishes recorded manufacturing info — NOT present-condition authenticity",
+    locator: "Vespa Vintage service — certificate of origin",
+    url: null,
+    retrievedAt: null,
+    appliesTo: "Future collector dossiers",
+    license: "restricted",
+    evidence: "unverified",
+  },
+];
+
+export const sourceById = (id: string) =>
+  SOURCES.find((s) => s.id === id) ?? null;
+
+/**
+ * Legacy citation labels used across the current UI (model pages, fitment,
+ * guides) mapped onto the registry. Labels with no confirmed publication
+ * stay `unknown` — they are breadcrumbs for the research pass, not sources.
+ */
+export const LEGACY_LABELS: Record<
+  string,
+  { sourceId: string | null; note: string }
+> = {
+  "Wikipedia/Vespa": { sourceId: null, note: "Confirm article + revision" },
+  "Scootering-70Yrs": { sourceId: null, note: "Confirm publication + pages" },
+  VespaClubBritain: { sourceId: null, note: "Confirm page on club site" },
+  "ClassicBikeHub-AtoZ": { sourceId: null, note: "Confirm publication + pages" },
+  TopClassico: { sourceId: null, note: "Confirm listing/article URL" },
+  VespaWorldClub: { sourceId: "vespa-world-club", note: "Registry: vespa-world-club" },
+  "Motorscooter-culture": { sourceId: null, note: "Confirm publication" },
+  "Ruetir-GS": { sourceId: null, note: "Confirm article URL" },
+  "VespaMag-smallframe": { sourceId: null, note: "Confirm publication" },
+  "Autotrader-Vespa80": { sourceId: null, note: "Confirm article URL" },
+  "UltimateMotorcycling-historic": { sourceId: null, note: "Confirm article URL" },
+  "Vespa.name": { sourceId: null, note: "Confirm page URL" },
+  "UKScooters-history": { sourceId: null, note: "Confirm page URL" },
+  Scooterlounge: { sourceId: null, note: "Confirm page URL" },
+  "TotalMotorcycle-2018": { sourceId: null, note: "Confirm page URL" },
+  "Ruetir-Rally200": { sourceId: null, note: "Confirm article URL" },
+  "ClassicMotorbikes-P2": { sourceId: null, note: "Confirm publication + pages" },
+  "VNAuto-PX": { sourceId: null, note: "Confirm article URL" },
+  Mycarmakesnoise: { sourceId: null, note: "Confirm article URL" },
+  "MarellaScooters-history": { sourceId: null, note: "Confirm page URL" },
+  Bikesales: { sourceId: null, note: "Confirm article URL" },
+  "Wikipedia/Vespa946": { sourceId: null, note: "Confirm article + revision" },
+  "UltimateMotorcycling-80Yrs": { sourceId: null, note: "Confirm article URL" },
+  "PiaggioGroup-WIDE": { sourceId: "piaggio-press", note: "Registry: piaggio-press" },
+  "SIP catalogue pattern": { sourceId: "sip-modelbase", note: "Registry: sip-modelbase — pattern only, permission needed for diagrams" },
+  "WikipediaDE/Vespa98": { sourceId: null, note: "Confirm article + revision" },
+  "WikipediaDE/Vespa125": { sourceId: null, note: "Confirm article + revision" },
+  "WikipediaDE/VespaGS": { sourceId: null, note: "Confirm article + revision" },
+  "WikipediaDE/Vespa50": { sourceId: null, note: "Confirm article + revision" },
+  "Vespa.name-180SS": { sourceId: null, note: "Confirm spec-table URL" },
+  "ClassicTrader-180SS": { sourceId: null, note: "Confirm listing-guide URL" },
+  "Wikipedia/VespaRally": { sourceId: null, note: "Confirm article + revision" },
+  "Wikipedia/VespaPX": { sourceId: null, note: "Confirm article + revision" },
+  "Wikipedia/VespaET": { sourceId: null, note: "Confirm article + revision" },
+  "Wikipedia/VespaGTS": { sourceId: null, note: "Confirm article + revision" },
+  "Wikipedia/VespaPrimavera": { sourceId: null, note: "Confirm article + revision" },
+  "Wikipedia/Vespa946-tech": { sourceId: null, note: "Confirm article + revision" },
+  "Autoblog-Elettrica": { sourceId: null, note: "Confirm article URL" },
+  "Bennetts-Elettrica": { sourceId: null, note: "Confirm article URL" },
+};

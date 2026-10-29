@@ -1,0 +1,89 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --color-ink: #171310;
+  --color-rosso: #c1271b;
+  --color-rosso-deep: #931b12;
+  --color-verde: #1e7a3c;
+  --color-ambra: #b26a00;
+  --color-sand: #f3efe4;
+  --color-line: #e6e1d2;
+  --color-asphalt: #23201a;
+  --color-fog: #a39c8b;
+
+  /* Transitional aliases: legacy names render in the new palette. */
+  --color-lagoon: #c1271b;
+  --color-lagoon-deep: #931b12;
+  --color-racing: #c1271b;
+  --color-parchment: #f3efe4;
+
+  --font-grotesk: "Archivo", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+body {
+  @apply bg-white text-ink antialiased;
+}
+
+::selection {
+  background: var(--color-rosso);
+  color: #fff;
+}
+
+/* Instant-film frame: white card + caption strip. Art goes in .polaroid-art. */
+.polaroid {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--color-line);
+  box-shadow: 0 18px 40px rgba(60, 45, 20, 0.14);
+  padding: 12px 12px 48px;
+}
+
+.polaroid > figcaption {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #6e675a;
+}
+
+/* Documentary photos keep their own character; the layout curates them. */
+
+/* Frieze track: buttons carry the affordance, not a heavy scrollbar. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Year-scrubber tick strip */
+.ticks {
+  height: 8px;
+  margin-top: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #b9ac93 0 1px,
+    transparent 1px 12px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

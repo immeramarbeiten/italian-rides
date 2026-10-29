@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScooterParts — Build Diary</title>
+<style>
+  :root { color-scheme: light dark; --ok:#16a34a; --open:#d97706; --bg:canvas; --card:color-mix(in srgb, canvas 92%, gray 8%); --line:color-mix(in srgb, canvas 75%, gray 25%); }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 24px; max-width: 860px; margin-inline: auto; line-height: 1.5; }
+  h1 { margin: 0 0 4px; font-size: 1.6rem; }
+  .sub { color: gray; font-size: .9rem; margin-bottom: 16px; }
+  .bar { height: 12px; border-radius: 8px; background: var(--line); overflow: hidden; }
+  .bar > div { height: 100%; background: linear-gradient(90deg, var(--ok), #4ade80); width: 0; transition: width .4s; }
+  .stats { display: flex; gap: 12px; margin: 12px 0 20px; flex-wrap: wrap; }
+  .pill { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: .85rem; }
+  .pill b { font-variant-numeric: tabular-nums; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  h2 { margin: 0 0 10px; font-size: 1.05rem; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-top: 1px solid var(--line); }
+  li:first-child { border-top: 0; }
+  input[type=checkbox] { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--ok); flex-shrink: 0; }
+  li.done span { text-decoration: line-through; opacity: .65; }
+  .tag { font-size: .72rem; border-radius: 6px; padding: 1px 7px; margin-left: 8px; white-space: nowrap; }
+  .tag.done { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+  .tag.open { background: color-mix(in srgb, var(--open) 18%, transparent); color: var(--open); }
+  code { font-size: .82em; background: var(--line); border-radius: 5px; padding: 1px 5px; }
+  .log li { display: block; }
+  .log time { font-weight: 600; font-variant-numeric: tabular-nums; }
+  textarea { width: 100%; min-height: 56px; border-radius: 8px; border: 1px solid var(--line); padding: 8px; font: inherit; background: var(--bg); }
+  button { border: 1px solid var(--line); background: var(--ok); color: #fff; border-radius: 8px; padding: 7px 14px; font: inherit; cursor: pointer; margin-top: 8px; }
+  .hint { font-size: .8rem; color: gray; margin-top: 8px; }
+</style>
+</head>
+<body>
+<h1>🛵 Italian Rides — Build Diary</h1>
+<div class="sub">Next.js 16 + R3F + Tailwind + motion + Blender hybrid &nbsp;·&nbsp; Demo: <code>/</code> → <code>/timeline</code> → <code>/inspect</code> → <code>/parts</code> → <code>/garage</code> → <code>/workshop</code> → <code>/clubs</code></div>
+<div class="bar"><div id="fill"></div></div>
+<div class="stats">
+  <span class="pill">✅ Done <b id="nDone">0</b></span>
+  <span class="pill">🟡 Open <b id="nOpen">0</b></span>
+  <span class="pill">📝 Notes <b id="nNotes">0</b></span>
+  <span class="pill">🔄 Updated <b id="updated">—</b></span>
+</div>
+
+<section><h2>✅ Done</h2><ul id="done"></ul></section>
+<section><h2>🟡 Still open</h2><ul id="open"></ul></section>
+<section class="log"><h2>📓 Log</h2><ul id="log"></ul></section>
+<section><h2>➕ Add diary note</h2>
+  <textarea id="note" placeholder="e.g. 18:40 — recorded first demo take, 3D hotspot 5 lagged"></textarea>
+  <button id="add">Add note</button>
+  <div class="hint">Checkboxes + notes persist in this browser (localStorage). Edit <code>DIARY.md</code> for the permanent record.</div>
+</section>
+
+<script>
+const DONE = [
+  "Scaffold: Next.js app router, TS, Tailwind, R3F + drei, motion, zustand, components/ui",
+  "Home / — hero + 3D scooter + tour banner",
+  "Timeline /timeline — 12 Vespa models, decade filter, detail panel, source labels",
+  "3D inspect /inspect — procedural Vespa, orbit, 6 hotspots, exploded view, X-ray, GLB slot",
+  "Parts /parts — photo-ID mock, fitment matrix, maintenance guides + queue-to-workshop",
+  "Garage /garage — scooters, mileage/service log, localStorage, demo seed",
+  "Workshop /workshop — job cards, Start/Finish, receives queued jobs",
+  "Clubs /clubs — member badge, clubs list, parts discovery search",
+  "Tour banners on every step + DEMO_SCRIPT.md video walkthrough",
+  "npm run build passes",
+  "Workflow 11/11 complete: route table + prerendered-HTML checks + link audit"
+];
+const OPEN = [
+  "Live browser pass: npm run dev, walk tour, check console (never run)",
+  "Real Blender GLB export into public/models/ (folder still empty)",
+  "Part identification beyond mock (real classifier or documented limits)",
+  "Verified fitment data (real part × model sources)",
+  "Backend beyond localStorage (if judging needs multi-device)",
+  "Record demo video per DEMO_SCRIPT.md",
+  "Mobile/responsive pass + console-error check in real browser",
+  "README for judges (what it is, how to run, what is mock)"
+];
+const LOG = [
+  ["17:35", "Project folder confirmed empty. Scope: full demo flow, Next.js+R3F+Tailwind+motion+Blender hybrid."],
+  ["17:5x", "Scaffold complete: Next.js 16, deps installed, 7 route slots created."],
+  ["18:0x", "Timeline + 3D inspect + parts + garage/workshop/clubs builders finished."],
+  ["18:10", "Tour banners wired + DEMO_SCRIPT.md written; build passes."],
+  ["18:1x", "Verifier/synthesis running. Diary created."],
+  ["18:20", "Workflow COMPLETE 11/11, 0 failed. Build green; demo flow verified via HTML checks. Still needs: live browser pass, licensed GLB, video."],
+  ["18:30", "Design reset: screenshots in design-inspo/ → vote on coded directions → tokens → rebuild. Glasses = storyboarded video segment only."],
+  ["Oct 27", "Voted A+B fusion. Tokens frozen, full rebuild done, build green 10/10. Frames photo-ready for Blender renders."]
+];
+const store = JSON.parse(localStorage.getItem("scooter-diary") || "{}");
+store.checks = store.checks || {}; store.notes = store.notes || [];
+function save() { localStorage.setItem("scooter-diary", JSON.stringify(store)); render(); }
+function item(text, i, list) {
+  const li = document.createElement("li");
+  const cb = document.createElement("input");
+  cb.type = "checkbox"; cb.checked = !!store.checks[list + i];
+  cb.onchange = () => { store.checks[list + i] = cb.checked; save(); };
+  const sp = document.createElement("span"); sp.textContent = text;
+  const tag = document.createElement("span");
+  tag.className = "tag " + (cb.checked ? "done" : "open");
+  tag.textContent = cb.checked ? "done" : "open";
+  li.append(cb, sp); sp.append(tag);
+  if (cb.checked) li.classList.add("done");
+  return li;
+}
+function render() {
+  const d = document.getElementById("done"), o = document.getElementById("open");
+  d.innerHTML = ""; o.innerHTML = "";
+  DONE.forEach((t, i) => d.append(item(t, i, "d")));
+  OPEN.forEach((t, i) => o.append(item(t, i, "o")));
+  const log = document.getElementById("log"); log.innerHTML = "";
+  [...LOG.map(([t, x]) => [t, x]), ...store.notes].forEach(([t, x]) => {
+    const li = document.createElement("li");
+    li.innerHTML = ""; const tm = document.createElement("time"); tm.textContent = t + " — ";
+    li.append(tm, document.createTextNode(x)); log.append(li);
+  });
+  const total = DONE.length + OPEN.length;
+  const nDone = Object.values(store.checks).filter(Boolean).length || DONE.length;
+  document.getElementById("nDone").textContent = nDone;
+  document.getElementById("nOpen").textContent = total - nDone;
+  document.getElementById("nNotes").textContent = store.notes.length;
+  document.getElementById("fill").style.width = Math.round(100 * nDone / total) + "%";
+  document.getElementById("updated").textContent = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+}
+// default: seed done-items as checked on first open
+if (!localStorage.getItem("scooter-diary")) { DONE.forEach((_, i) => store.checks["d" + i] = true); localStorage.setItem("scooter-diary", JSON.stringify(store)); }
+document.getElementById("add").onclick = () => {
+  const v = document.getElementById("note").value.trim(); if (!v) return;
+  const now = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+  store.notes.push([now, v]); document.getElementById("note").value = ""; save();
+};
+render();
+</script>
+</body>
+</html>

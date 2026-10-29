@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction A — White Frieze (concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#141414; --paper:#ffffff; --line:#e4e4e4; --red:#d92b1f; --mute:#6f6f6f; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:Archivo,system-ui,sans-serif; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  header.top { display:flex; justify-content:space-between; align-items:center; padding:18px 32px; border-bottom:1px solid var(--line); }
+  .brand { font-weight:900; letter-spacing:-.02em; font-size:1.05rem; }
+  .brand i { color:var(--red); font-style:normal; }
+  nav { display:flex; gap:26px; font-size:.8rem; }
+  nav a { color:var(--ink); text-decoration:none; }
+  nav a:hover { color:var(--red); }
+  .concept { font-size:.7rem; border:1px solid var(--line); padding:4px 10px; border-radius:999px; color:var(--mute); }
+  .hero { padding:88px 32px 56px; max-width:1200px; }
+  .kicker { font-size:.78rem; letter-spacing:.06em; color:var(--mute); margin-bottom:22px; }
+  h1 { font-weight:900; letter-spacing:-.045em; line-height:.94; font-size:clamp(3.2rem,8vw,6.5rem); }
+  h1 em { font-style:normal; color:var(--red); }
+  .lede { margin-top:24px; font-size:1.15rem; max-width:34em; line-height:1.55; color:#333; }
+  .cta-row { margin-top:32px; display:flex; gap:20px; align-items:center; }
+  .cta { background:var(--ink); color:#fff; border:0; border-radius:999px; padding:14px 30px; font:inherit; font-weight:700; font-size:.95rem; cursor:pointer; }
+  .cta:hover { background:var(--red); }
+  .ghost { color:var(--ink); font-weight:500; }
+  .frieze-label { display:flex; justify-content:space-between; padding:0 32px 12px; font-size:.78rem; color:var(--mute); border-bottom:1px solid var(--line); }
+  .strip { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; border-bottom:1px solid var(--line); }
+  .model { flex:0 0 min(400px,82vw); scroll-snap-align:start; padding:36px 32px 44px; border-right:1px solid var(--line); position:relative; }
+  .model::before { content:""; position:absolute; top:0; left:32px; width:56px; height:3px; background:var(--ink); }
+  .model.hot::before { background:var(--red); }
+  .year { font-weight:900; letter-spacing:-.04em; font-size:4.6rem; line-height:1; }
+  .model.hot .year { color:var(--red); }
+  .scoot { width:100%; height:auto; margin:18px 0 8px; color:var(--ink); }
+  .model.hot .scoot { color:var(--red); }
+  .mname { font-weight:700; font-size:1.2rem; letter-spacing:-.01em; }
+  .specs { font-size:.76rem; color:var(--mute); margin-top:8px; letter-spacing:.04em; }
+  .spec { display:grid; grid-template-columns:1fr 1.2fr; gap:40px; padding:72px 32px; max-width:1200px; }
+  .spec h2 { font-weight:900; letter-spacing:-.03em; font-size:2.6rem; line-height:1.02; }
+  .spec p { margin-top:16px; color:#333; line-height:1.6; max-width:26em; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; }
+  th { text-align:left; font-size:.72rem; letter-spacing:.08em; color:var(--mute); font-weight:500; padding:10px 12px; border-bottom:2px solid var(--ink); }
+  td { padding:12px; border-bottom:1px solid var(--line); }
+  td.fit { font-family:"IBM Plex Mono",monospace; font-size:.75rem; }
+  .yes { color:#0a7a3d; } .adapt { color:#b26a00; } .no { color:var(--red); }
+  footer { border-top:1px solid var(--line); padding:22px 32px; display:flex; justify-content:space-between; font-size:.75rem; color:var(--mute); }
+  @media (max-width:760px){ .spec{grid-template-columns:1fr;} nav{display:none;} }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="vespa" viewBox="0 0 260 140">
+    <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
+      <circle cx="64" cy="102" r="24"/><circle cx="196" cy="102" r="24"/>
+      <path d="M41 99 C41 71 57 59 85 59"/>
+      <path d="M60 53 Q88 49 117 53"/>
+      <path d="M112 91 L149 91"/>
+      <path d="M149 91 C151 63 159 39 175 31"/>
+      <path d="M165 31 L197 31"/>
+      <path d="M179 31 L173 15"/><circle cx="171" cy="12" r="3.5"/>
+      <path d="M191 35 L198 76"/>
+      <path d="M173 79 C183 69 211 69 221 79"/>
+      <circle cx="170" cy="49" r="6"/>
+      <path d="M41 99 L37 79"/>
+      <path d="M102 107 L134 107" stroke-width="5"/>
+    </g>
+    <circle cx="64" cy="102" r="4.5" fill="currentColor"/>
+    <circle cx="196" cy="102" r="4.5" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="brand">SCOOTER<i>PARTS</i></div>
+  <nav class="mono"><a href="#">Timeline</a><a href="#">Inspect</a><a href="#">Parts</a><a href="#">Garage</a></nav>
+  <div class="concept mono">DIRECTION A · CONCEPT</div>
+</header>
+
+<section class="hero">
+  <div class="kicker mono">ARCHIVE №001–012 — PONTEDERA, IT · EST. 1946</div>
+  <h1>Eighty years<br>of the <em>wasp.</em></h1>
+  <p class="lede">Every landmark Vespa, drawn to the same scale, on one white wall. Scroll the frieze, pick a year, inspect the machine.</p>
+  <div class="cta-row"><button class="cta">Ride the timeline ↓</button><a class="ghost" href="#">How fitment works →</a></div>
+</section>
+
+<div class="frieze-label mono"><span>THE FRIEZE — 1946 → 2018</span><span>SCROLL →</span></div>
+<section class="strip">
+  <div class="model"><div class="year">1946</div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="mname">Vespa 98</div><div class="specs mono">98CC · 60 KM/H · 3 GEARS</div></div>
+  <div class="model"><div class="year">1955</div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="mname">150 GS Gran Sport</div><div class="specs mono">150CC · 100 KM/H · 4 GEARS</div></div>
+  <div class="model"><div class="year">1968</div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="mname">125 Primavera</div><div class="specs mono">125CC · 90 KM/H · 4 GEARS</div></div>
+  <div class="model hot"><div class="year">1978</div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="mname">PX 150 — 3M built</div><div class="specs mono">150CC · 95 KM/H · 4 GEARS</div></div>
+  <div class="model"><div class="year">2003</div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="mname">GTS 300</div><div class="specs mono">278CC · 120 KM/H · CVT</div></div>
+  <div class="model"><div class="year">2018</div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="mname">Elettrica</div><div class="specs mono">ELECTRIC · 70 KM/H · SILENT</div></div>
+</section>
+
+<section class="spec">
+  <div><h2>Fitment,<br>verified.</h2><p>Every part row carries its source — SIP catalog, Piaggio parts book, or workshop manual. No guesswork at the workbench.</p></div>
+  <table>
+    <tr><th>PART</th><th>PX 150 ’78</th><th>NOTE</th></tr>
+    <tr><td>Clutch plates, cork</td><td class="fit yes">● FITS</td><td class="mono" style="font-size:.75rem">SIP #93050000</td></tr>
+    <tr><td>Carburetor SI 24/24</td><td class="fit yes">● FITS</td><td class="mono" style="font-size:.75rem">OEM Dell’Orto</td></tr>
+    <tr><td>Front shock, PX ’98+</td><td class="fit adapt">● ADAPT</td><td class="mono" style="font-size:.75rem">10mm spacer</td></tr>
+    <tr><td>ET4 brake disc</td><td class="fit no">● NO</td><td class="mono" style="font-size:.75rem">hub differs</td></tr>
+  </table>
+</section>
+
+<footer class="mono"><span>SCOOTERPARTS — INDEPENDENT ARCHIVE</span><span>CONCEPT A · LINE ART = PLACEHOLDER FOR BLENDER RENDERS</span></footer>
+</body>
+</html>

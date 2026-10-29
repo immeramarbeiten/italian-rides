@@ -1,0 +1,80 @@
+"use client";
+
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { VESPA_MODELS } from "@/lib/vespa-data";
+import { VESPA_PARTS } from "@/lib/vespa-inspect";
+import { COMPONENT_INFO } from "@/lib/component-info";
+import { PhotoUploader } from "@/components/photo-uploader";
+import { ScooterStage } from "@/components/field-guide";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+export function InspectEntry() {
+  const params = useSearchParams();
+  const model = params.get("model") ?? "";
+  const part = params.get("part") ?? "";
+  const initialModel = VESPA_MODELS.some((m) => m.m === model) ? model : "";
+  const initialPart = VESPA_PARTS.some((p) => p.id === part) ? part : "wheels";
+  const [partId, setPartId] = useState(initialPart);
+  const selected = VESPA_PARTS.find((p) => p.id === partId) ?? VESPA_PARTS[0];
+  const info = COMPONENT_INFO[selected.id];
+
+  return (
+    <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
+      <div>
+        <p className="font-mono text-[11px] tracking-[0.14em] text-zinc-600">
+          THE FIELD GUIDE
+        </p>
+        <div className="mt-3 border border-zinc-300 bg-white p-6">
+          <ScooterStage fuel="injection" showSystem={false} />
+          <p className="mt-3 font-mono text-[11px] tracking-[0.08em] text-zinc-600">
+            SIMPLIFIED VESPA PROFILE — SELECT AN AREA BELOW
+          </p>
+        </div>
+        <div
+          className="mt-4 flex flex-wrap gap-2"
+          role="group"
+          aria-label="Choose an area to explore"
+        >
+          {VESPA_PARTS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setPartId(p.id)}
+              aria-pressed={partId === p.id}
+              className={cn(
+                buttonVariants({
+                  variant: partId === p.id ? "default" : "outline",
+                }),
+              )}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 border border-zinc-300 bg-white p-5">
+          <p className="font-grotesk text-xl font-bold">{selected.label}</p>
+          <p className="mt-1 font-mono text-[11px] tracking-[0.08em] text-zinc-600">
+            {info.assembly.toUpperCase()} — {info.location.toUpperCase()}
+          </p>
+          <p className="mt-3 text-[15px] leading-[1.7] text-zinc-700">
+            {info.function}
+          </p>
+        </div>
+      </div>
+      <div>
+        <p className="font-mono text-[11px] tracking-[0.14em] text-zinc-600">
+          YOUR SCOOTER — OPTIONAL COMPANION
+        </p>
+        <div className="mt-3">
+          <PhotoUploader
+            initialModel={initialModel}
+            selectedPart={partId}
+            ctaLabel="Choose a component"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

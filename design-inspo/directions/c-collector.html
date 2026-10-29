@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction C — Collector Cards (concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0f110d; --panel:#171913; --line:#2b2e24; --paper:#f0e9d8; --mute:#9a937f; --gold:#e0a83c; --red:#e0392b; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:Archivo,system-ui,sans-serif; background:var(--bg); color:var(--paper); -webkit-font-smoothing:antialiased; }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  header.top { display:flex; justify-content:space-between; align-items:center; padding:16px 32px; border-bottom:1px solid var(--line); font-size:.78rem; }
+  .brand { font-weight:700; letter-spacing:.02em; } .brand b { color:var(--gold); }
+  .garage { display:flex; align-items:center; gap:12px; color:var(--mute); }
+  .progress { width:130px; height:5px; background:var(--line); border-radius:3px; overflow:hidden; }
+  .progress i { display:block; width:25%; height:100%; background:var(--gold); }
+  .hero { display:grid; grid-template-columns:1.1fr .9fr; gap:48px; padding:72px 32px 56px; max-width:1180px; margin:0 auto; align-items:center; }
+  .series { font-size:.75rem; letter-spacing:.14em; color:var(--gold); margin-bottom:18px; }
+  h1 { font-family:"Bricolage Grotesque",Archivo,sans-serif; font-weight:800; font-size:clamp(2.8rem,6vw,5rem); line-height:.98; letter-spacing:-.02em; }
+  h1 em { font-style:normal; color:var(--gold); }
+  .lede { margin-top:18px; color:var(--mute); line-height:1.6; max-width:30em; }
+  .cta-row { margin-top:30px; display:flex; gap:14px; }
+  .cta { background:var(--gold); color:#141310; border:0; border-radius:10px; padding:15px 28px; font:inherit; font-weight:700; cursor:pointer; }
+  .ghost { background:transparent; color:var(--paper); border:1px solid var(--line); border-radius:10px; padding:15px 28px; font:inherit; cursor:pointer; }
+  .set { max-width:1180px; margin:0 auto; padding:10px 32px 80px; }
+  .set-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:24px; }
+  .set-head h2 { font-family:"Bricolage Grotesque",Archivo,sans-serif; font-size:1.7rem; }
+  .set-head span { color:var(--mute); font-size:.8rem; }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .card { perspective:1200px; cursor:pointer; }
+  .inner { position:relative; transform-style:preserve-3d; transition:transform .6s cubic-bezier(.2,.7,.3,1); }
+  .card.flipped .inner { transform:rotateY(180deg); }
+  .face { backface-visibility:hidden; -webkit-backface-visibility:hidden; background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:22px; min-height:430px; position:relative; overflow:hidden; }
+  .back { position:absolute; inset:0; transform:rotateY(180deg); display:flex; flex-direction:column; }
+  .rar { display:flex; justify-content:space-between; font-size:.68rem; letter-spacing:.12em; }
+  .legendary .face { border-color:var(--gold); }
+  .legendary .rar { color:var(--gold); }
+  .rara .rar { color:var(--red); }
+  .nuova .rar { color:var(--paper); }
+  .scoot { width:100%; height:auto; margin:14px 0 6px; color:var(--paper); }
+  .legendary .scoot { color:var(--gold); }
+  .cname { font-weight:700; font-size:1.25rem; letter-spacing:-.01em; }
+  .cyear { font-family:"Bricolage Grotesque",Archivo,sans-serif; font-weight:800; font-size:3.2rem; line-height:1; margin:2px 0 10px; }
+  .legendary .cyear { color:var(--gold); }
+  .cstats { font-size:.72rem; letter-spacing:.06em; color:var(--mute); border-top:1px solid var(--line); padding-top:12px; }
+  .hint { position:absolute; bottom:14px; right:18px; font-size:.65rem; letter-spacing:.1em; color:var(--mute); }
+  .shine { position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .25s; background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,240,200,.28), transparent 55%); }
+  .card:hover .shine { opacity:1; }
+  .back h3 { font-family:"Bricolage Grotesque",Archivo,sans-serif; font-size:1.3rem; margin-bottom:14px; }
+  .back ul { list-style:none; padding:0; font-size:.85rem; line-height:2; color:var(--mute); }
+  .back ul b { color:var(--paper); font-weight:500; }
+  .park { margin-top:auto; background:var(--gold); color:#141310; border:0; border-radius:10px; padding:13px; font:inherit; font-weight:700; cursor:pointer; }
+  footer { border-top:1px solid var(--line); padding:22px 32px; display:flex; justify-content:space-between; font-size:.72rem; color:var(--mute); }
+  .featured-wrap { max-width:380px; margin-left:auto; width:100%; }
+  .featured-wrap .face { min-height:480px; }
+  @media (max-width:900px){ .hero{grid-template-columns:1fr;} .grid{grid-template-columns:1fr 1fr;} .featured-wrap{margin:0;} }
+  @media (max-width:600px){ .grid{grid-template-columns:1fr;} }
+  @media (prefers-reduced-motion:reduce){ .inner{transition:none;} .card:hover .shine{opacity:0;} }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="vespa" viewBox="0 0 260 140">
+    <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
+      <circle cx="64" cy="102" r="24"/><circle cx="196" cy="102" r="24"/>
+      <path d="M41 99 C41 71 57 59 85 59"/>
+      <path d="M60 53 Q88 49 117 53"/>
+      <path d="M112 91 L149 91"/>
+      <path d="M149 91 C151 63 159 39 175 31"/>
+      <path d="M165 31 L197 31"/>
+      <path d="M179 31 L173 15"/><circle cx="171" cy="12" r="3.5"/>
+      <path d="M191 35 L198 76"/>
+      <path d="M173 79 C183 69 211 69 221 79"/>
+      <circle cx="170" cy="49" r="6"/>
+      <path d="M41 99 L37 79"/>
+      <path d="M102 107 L134 107" stroke-width="5"/>
+    </g>
+    <circle cx="64" cy="102" r="4.5" fill="currentColor"/>
+    <circle cx="196" cy="102" r="4.5" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<header class="top mono"><div class="brand">SCOOTER<b>PARTS</b> // COLLECTION 001</div><div class="garage"><span>GARAGE — 3 OF 12</span><span class="progress"><i></i></span><span style="border:1px solid var(--line);padding:3px 10px;border-radius:999px;font-size:.65rem">DIR C · CONCEPT</span></div></header>
+
+<section class="hero">
+  <div>
+    <div class="series mono">SERIES I — 1946 → 2018 · 12 MODELS</div>
+    <h1>Collect all <em>twelve.</em></h1>
+    <p class="lede">Every landmark Vespa is a card. Inspect it, flip it for the spec sheet, park it in your garage. Pack 07 drops with the rally season.</p>
+    <div class="cta-row"><button class="cta">Open pack 07 →</button><button class="ghost">Browse the set</button></div>
+  </div>
+  <div class="featured-wrap">
+    <div class="card legendary" id="feat"><div class="inner">
+      <div class="face front"><div class="shine"></div><div class="rar mono"><span>★ LEGGENDARIA</span><span>№001</span></div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="cname">Vespa 98</div><div class="cyear">1946</div><div class="cstats mono">98CC · 60 KM/H · 3 MARCE</div><div class="hint mono">CLICK TO FLIP</div></div>
+      <div class="face back"><h3>Vespa 98 — spec sheet</h3><ul><li><b>Engine</b> · 98cc 2-stroke</li><li><b>Top speed</b> · 60 km/h</li><li><b>Gears</b> · 3, handlebar shift</li><li><b>Built</b> · ~2,500 in 1946</li><li><b>Source</b> · Piaggio archive</li></ul><button class="park">Park in garage →</button></div>
+    </div></div>
+  </div>
+</section>
+
+<section class="set">
+  <div class="set-head"><h2>The set — Series I</h2><span class="mono">CLICK ANY CARD TO FLIP · HOVER FOR HOLO</span></div>
+  <div class="grid" id="grid">
+    <div class="card rara"><div class="inner"><div class="face front"><div class="shine"></div><div class="rar mono"><span>◆ RARA</span><span>№002</span></div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="cname">150 GS Gran Sport</div><div class="cyear">1955</div><div class="cstats mono">150CC · 100 KM/H · 4 MARCE</div><div class="hint mono">FLIP</div></div><div class="face back"><h3>150 GS — spec sheet</h3><ul><li><b>Engine</b> · 150cc 2-stroke</li><li><b>Top speed</b> · 100 km/h</li><li><b>Note</b> · first sport Vespa</li></ul><button class="park">Park in garage →</button></div></div></div>
+    <div class="card rara"><div class="inner"><div class="face front"><div class="shine"></div><div class="rar mono"><span>◆ RARA</span><span>№003</span></div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="cname">125 Primavera</div><div class="cyear">1968</div><div class="cstats mono">125CC · 90 KM/H · 4 MARCE</div><div class="hint mono">FLIP</div></div><div class="face back"><h3>Primavera — spec sheet</h3><ul><li><b>Engine</b> · 125cc smallframe</li><li><b>Top speed</b> · 90 km/h</li><li><b>Note</b> · youth icon</li></ul><button class="park">Park in garage →</button></div></div></div>
+    <div class="card"><div class="inner"><div class="face front"><div class="shine"></div><div class="rar mono"><span>● COMUNE</span><span>№004</span></div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="cname">PX 150</div><div class="cyear">1978</div><div class="cstats mono">150CC · 95 KM/H · 4 MARCE</div><div class="hint mono">FLIP</div></div><div class="face back"><h3>PX 150 — spec sheet</h3><ul><li><b>Engine</b> · 150cc 2-stroke</li><li><b>Built</b> · 3M+ units</li><li><b>Note</b> · the people’s Vespa</li></ul><button class="park">Park in garage →</button></div></div></div>
+    <div class="card"><div class="inner"><div class="face front"><div class="shine"></div><div class="rar mono"><span>● COMUNE</span><span>№005</span></div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="cname">GTS 300</div><div class="cyear">2003</div><div class="cstats mono">278CC · 120 KM/H · CVT</div><div class="hint mono">FLIP</div></div><div class="face back"><h3>GTS 300 — spec sheet</h3><ul><li><b>Engine</b> · 278cc Quasar</li><li><b>Top speed</b> · 120 km/h</li><li><b>Note</b> · modern granturismo</li></ul><button class="park">Park in garage →</button></div></div></div>
+    <div class="card nuova"><div class="inner"><div class="face front"><div class="shine"></div><div class="rar mono"><span>○ NUOVA</span><span>№006</span></div><svg class="scoot" viewBox="0 0 260 140"><use href="#vespa"/></svg><div class="cname">Elettrica</div><div class="cyear">2018</div><div class="cstats mono">ELECTRIC · 70 KM/H · SILENT</div><div class="hint mono">FLIP</div></div><div class="face back"><h3>Elettrica — spec sheet</h3><ul><li><b>Motor</b> · hub, Li-ion</li><li><b>Top speed</b> · 70 km/h</li><li><b>Note</b> · first electric Vespa</li></ul><button class="park">Park in garage →</button></div></div></div>
+    <div class="card"><div class="inner"><div class="face front"><div class="shine"></div><div class="rar mono"><span>? PACK 07</span><span>···</span></div><svg class="scoot" viewBox="0 0 260 140" style="opacity:.25"><use href="#vespa"/></svg><div class="cname">Rally season drop</div><div class="cyear">???</div><div class="cstats mono">GUARANTEED RARA OR BETTER</div><div class="hint mono">SOON</div></div><div class="face back"><h3>Pack 07</h3><ul><li><b>Drops</b> · with rally season</li><li><b>Pull</b> · Rally 200? SS180?</li></ul><button class="park">Notify me →</button></div></div></div>
+  </div>
+</section>
+
+<footer class="mono"><span>SCOOTERPARTS — INDEPENDENT ARCHIVE</span><span>CONCEPT C · LINE ART = PLACEHOLDER FOR BLENDER RENDERS</span></footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll(".card").forEach(function(card){
+    card.addEventListener("click", function(e){ if(e.target.closest("button")) return; card.classList.toggle("flipped"); });
+    if(!reduce){
+      card.addEventListener("mousemove", function(e){
+        var r = card.getBoundingClientRect();
+        card.style.setProperty("--mx", ((e.clientX-r.left)/r.width*100)+"%");
+        card.style.setProperty("--my", ((e.clientY-r.top)/r.height*100)+"%");
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

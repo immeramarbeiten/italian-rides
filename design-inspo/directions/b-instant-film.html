@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction B — Instant Film (concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,700&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#f3efe4; --ink:#211a13; --red:#c1271b; --orange:#e8621a; --card:#fffdf8; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:Karla,system-ui,sans-serif; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  .serif { font-family:Fraunces,Georgia,serif; }
+  .topbar { background:var(--red); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 28px; font-size:.78rem; }
+  .topbar a { color:#fff; text-decoration:none; margin-left:22px; }
+  .concept { border:1px solid rgba(255,255,255,.5); padding:3px 10px; border-radius:999px; font-size:.68rem; }
+  .hero { text-align:center; padding:72px 24px 20px; }
+  h1 { font-family:Fraunces,Georgia,serif; font-weight:900; font-size:clamp(3rem,7.5vw,5.5rem); letter-spacing:-.02em; line-height:1; }
+  h1 em { color:var(--red); }
+  .sub { margin-top:14px; font-size:1.08rem; color:#5c5245; }
+  .frames { display:flex; justify-content:center; gap:18px; margin:44px auto 8px; padding:0 24px; flex-wrap:wrap; }
+  .polaroid { background:var(--card); padding:14px 14px 46px; width:min(300px,86vw); box-shadow:0 18px 40px rgba(60,40,20,.22); position:relative; transition:transform .35s ease; }
+  .polaroid:nth-child(1){ transform:rotate(-4deg); } .polaroid:nth-child(2){ transform:rotate(2.5deg) translateY(-10px); } .polaroid:nth-child(3){ transform:rotate(-2deg); }
+  .polaroid:hover { transform:rotate(0) translateY(-4px); }
+  .polaroid img { width:100%; aspect-ratio:1; object-fit:cover; display:block; background:#ddd; }
+  .polaroid figcaption { position:absolute; bottom:12px; left:14px; right:14px; font-size:.72rem; letter-spacing:.05em; color:#5c5245; }
+  .scrub-zone { max-width:760px; margin:44px auto 0; padding:0 24px 70px; }
+  .readout { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .readout .yr { font-family:Fraunces,Georgia,serif; font-weight:900; font-size:2.4rem; color:var(--red); }
+  .readout .md { font-size:.85rem; color:#5c5245; text-align:right; }
+  input[type=range] { width:100%; accent-color:var(--red); height:32px; cursor:pointer; }
+  .ticks { height:10px; background:repeating-linear-gradient(90deg,#b9ac93 0 1px,transparent 1px 12px); margin-top:2px; }
+  .ends { display:flex; justify-content:space-between; font-size:.72rem; color:#5c5245; margin-top:6px; }
+  .shoebox { padding:10px 24px 80px; max-width:1080px; margin:0 auto; }
+  .shoebox h2 { font-family:Fraunces,Georgia,serif; font-weight:700; font-size:2rem; margin-bottom:6px; }
+  .shoebox > p { color:#5c5245; margin-bottom:26px; }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .mini { background:var(--card); padding:12px 12px 40px; box-shadow:0 10px 26px rgba(60,40,20,.16); position:relative; }
+  .mini img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+  .mini .typeblock { aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; background:var(--red); color:#fff; font-family:Fraunces,Georgia,serif; font-weight:900; font-size:2.6rem; }
+  .mini .typeblock.alt { background:var(--ink); }
+  .mini figcaption { position:absolute; bottom:10px; left:12px; font-size:.7rem; letter-spacing:.05em; color:#5c5245; }
+  .road { background:#24211b; color:#cfc6b4; padding:64px 24px 30px; overflow:hidden; }
+  .road svg { width:100%; height:120px; display:block; }
+  .road .cap { max-width:1080px; margin:18px auto 0; display:flex; justify-content:space-between; font-size:.75rem; letter-spacing:.06em; }
+  footer { background:#24211b; color:#8a8172; padding:0 24px 26px; font-size:.72rem; text-align:center; }
+  @media (max-width:760px){ .grid{grid-template-columns:1fr 1fr;} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="topbar mono"><span><b>SCOOTERPARTS</b></span><span><span class="concept">DIRECTION B · CONCEPT</span><a href="#">TIMELINE</a><a href="#">GARAGE</a><a href="#">CLUBS</a></span></div>
+
+<section class="hero">
+  <h1>Every mile, <em>kept.</em></h1>
+  <p class="sub">Twelve landmark Vespas, shot like family photos. Drag the years.</p>
+</section>
+
+<div class="frames">
+  <figure class="polaroid"><img src="img/roma.jpg" alt="Vespa in Rome"><figcaption class="mono">ROMA — VESPA 98 · 1946</figcaption></figure>
+  <figure class="polaroid"><img src="img/toscana.jpg" alt="Vespa in Tuscany"><figcaption class="mono">TOSCANA — 150 GS · 1955</figcaption></figure>
+  <figure class="polaroid"><img src="img/dettaglio.jpg" alt="Vespa headlamp detail"><figcaption class="mono">DETTAGLIO — PX 150 · 1978</figcaption></figure>
+</div>
+
+<div class="scrub-zone">
+  <div class="readout"><span class="yr" id="yr">1978</span><span class="md mono" id="md">PX 150 — 150CC · 95 KM/H · “THE PEOPLE’S VESPA”</span></div>
+  <input type="range" id="scrub" min="1946" max="2018" value="1978" step="1" aria-label="Scrub the years">
+  <div class="ticks"></div>
+  <div class="ends mono"><span>1946 · VESPA 98</span><span>2018 · ELETTRICA</span></div>
+</div>
+
+<section class="shoebox">
+  <h2>The shoebox</h2>
+  <p>Every model gets a frame. Photos are placeholders — final art: owner photos + Blender stills.</p>
+  <div class="grid">
+    <figure class="mini"><img src="img/roma.jpg" alt=""><figcaption class="mono">1946 — VESPA 98</figcaption></figure>
+    <figure class="mini"><div class="typeblock">’55</div><figcaption class="mono">1955 — 150 GS</figcaption></figure>
+    <figure class="mini"><img src="img/toscana.jpg" alt=""><figcaption class="mono">1968 — PRIMAVERA</figcaption></figure>
+    <figure class="mini"><img src="img/dettaglio.jpg" alt=""><figcaption class="mono">1978 — PX 150</figcaption></figure>
+    <figure class="mini"><div class="typeblock alt">’03</div><figcaption class="mono">2003 — GTS 300</figcaption></figure>
+    <figure class="mini"><div class="typeblock">’18</div><figcaption class="mono">2018 — ELETTRICA</figcaption></figure>
+  </div>
+</section>
+
+<section class="road">
+  <svg viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M-20 90 C 250 70, 420 110, 650 80 S 1000 40, 1220 70" fill="none" stroke="#0e0d0a" stroke-width="9" opacity=".8"/>
+    <path d="M-20 104 C 250 84, 420 124, 650 94 S 1000 54, 1220 84" fill="none" stroke="#0e0d0a" stroke-width="9" opacity=".8"/>
+  </svg>
+  <div class="cap mono"><span>BREMSSPUREN — SOMEONE RODE THROUGH HERE</span><span>GTS 300 · 2024</span></div>
+</section>
+<footer class="mono">CONCEPT B · PHOTOS = AI PLACEHOLDERS, TO BE REPLACED</footer>
+
+<script>
+(function(){
+  var models=[[1946,"VESPA 98 — 98CC · 60 KM/H · “THE FIRST WASP”"],[1955,"150 GS — 150CC · 100 KM/H · “THE SPORT”"],[1968,"PRIMAVERA — 125CC · 90 KM/H · “SMALLFRAME ICON”"],[1978,"PX 150 — 150CC · 95 KM/H · “THE PEOPLE’S VESPA”"],[2003,"GTS 300 — 278CC · 120 KM/H · “GRANTURISMO”"],[2018,"ELETTRICA — ELECTRIC · 70 KM/H · “SILENT WASP”"]];
+  var s=document.getElementById("scrub"),yr=document.getElementById("yr"),md=document.getElementById("md");
+  if(!s||!yr||!md) return;
+  s.addEventListener("input",function(){
+    var v=+s.value,best=models[0];
+    for(var i=0;i<models.length;i++){ if(Math.abs(models[i][0]-v)<Math.abs(best[0]-v)) best=models[i]; }
+    yr.textContent=best[0]; md.textContent=best[1];
+  });
+})();
+</script>
+</body>
+</html>
