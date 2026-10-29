@@ -11,3 +11,10 @@ How this works:
 5. Winner gets tokenized (type, color, spacing, motion) → then we rebuild.
 
 No rules beyond that — more is better than curated.
+
+## Batch 1 (Oct 26–27) — `inspo-01…17.png`, chronological
+
+Retro display type, Watts timeline scrubber, polaroids, holo/flip cards, dark
+pro UI, Airbnb refs. Voted: A+B fusion → see `../design/tokens.md`.
+Related sources live in `../design/`: `gts-style-reference.png` (the GTS plate
+all 12 illustrations were style-locked to) and `gts-vector-trace.svg`.
