@@ -14,8 +14,8 @@ export default function InspectPage() {
       </h1>
       <p className="mt-3 max-w-2xl text-zinc-600">
         Choose a part of the scooter to explore, and add your own photo to
-        compare. You choose the component yourself — the photo is not
-        automatically identified.
+        compare. The photo is identified automatically — every call shows
+        its confidence, and you confirm.
       </p>
       <div className="mt-8">
         <Suspense

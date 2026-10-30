@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { VESPA_PARTS, type VespaPartId } from "@/lib/vespa-inspect";
 import { COMPONENT_INFO } from "@/lib/component-info";
 import { ARCHIVE_MODELS } from "@/lib/models";
+import { FAMILIES } from "@/lib/vespa-families";
 import {
   getSession,
   saveSession,
@@ -71,8 +72,14 @@ export function InspectWorkspace() {
   const selected = session.selectedPart
     ? VESPA_PARTS.find((p) => p.id === session.selectedPart)
     : null;
-  const slug = ARCHIVE_MODELS.find((m) => m.m === session.family)?.slug;
+  const slug =
+    ARCHIVE_MODELS.find((m) => m.m === session.family)?.slug ??
+    ARCHIVE_MODELS.find(
+      (m) =>
+        m.m === FAMILIES.find((f) => f.label === session.family)?.archive,
+    )?.slug;
   const mapped = session.status === "mapped";
+  const ai = session.ai ?? null;
 
   function select(id: VespaPartId | null) {
     setUnidentified(false);
@@ -90,6 +97,7 @@ export function InspectWorkspace() {
         </Link>
         <span className="font-mono text-xs text-zinc-500">
           {session.family || "Unknown model"}
+          {session.engine ? ` ${session.engine}` : ""}
           {session.year ? ` · ${session.year}` : ""} · {session.fileName}
         </span>
         <span className="ml-auto flex items-center gap-2">
@@ -143,6 +151,11 @@ export function InspectWorkspace() {
                 {VESPA_PARTS.map((p) => {
                   const active = session.selectedPart === p.id;
                   const hinted = session.hintPartIds.includes(p.id);
+                  const aiConf = ai
+                    ? Math.round(
+                        (ai.components.find((c) => c.id === p.id)?.confidence ?? 0) * 100,
+                      )
+                    : 0;
                   return (
                     <li key={p.id}>
                       <button
@@ -169,7 +182,7 @@ export function InspectWorkspace() {
                             {p.label}
                             {hinted && (
                               <span className="ml-2 font-mono text-[10px] text-zinc-500">
-                                filename hint
+                                {aiConf > 0 ? `AI · ${aiConf}%` : "filename hint"}
                               </span>
                             )}
                           </span>
@@ -268,12 +281,22 @@ export function InspectWorkspace() {
             <dl className="space-y-2 border-t border-line px-4 py-3 font-mono text-xs text-zinc-600">
               <div className="flex justify-between gap-4">
                 <dt>Matcher</dt>
-                <dd className="text-right">local-filename-heuristic v0 (no ML)</dd>
+                <dd className="text-right">
+                  {ai ? `${ai.model} (Meta Model API)` : "local-filename-heuristic v0"}
+                </dd>
               </div>
               <div className="flex justify-between gap-4">
                 <dt>External AI</dt>
-                <dd className="text-right">not connected</dd>
+                <dd className="text-right">
+                  {ai ? "connected — one identification call" : "not connected"}
+                </dd>
               </div>
+              {ai?.modelGuess && (
+                <div className="flex justify-between gap-4">
+                  <dt>Model guess</dt>
+                  <dd className="text-right">{ai.modelGuess}</dd>
+                </div>
+              )}
               <div className="flex justify-between gap-4">
                 <dt>Segmentation</dt>
                 <dd className="text-right">unavailable — selection is manual</dd>

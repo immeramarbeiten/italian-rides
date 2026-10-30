@@ -1,7 +1,21 @@
-import type { VespaPartId } from "./vespa-inspect";
+import { VESPA_PARTS, type VespaPartId } from "./vespa-inspect";
 import { CATALOG_PARTS } from "./vespa-parts";
 
 export type SessionStatus = "uploaded" | "matched" | "selected" | "mapped";
+
+export type AiComponent = {
+  id: string;
+  label: string;
+  confidence: number;
+  condition: string;
+};
+
+export type AiResult = {
+  model: string;
+  modelGuess: string | null;
+  components: AiComponent[];
+  notes: string;
+};
 
 export type InspectionSession = {
   id: string;
@@ -10,13 +24,17 @@ export type InspectionSession = {
   fileName: string;
   manufacturer: string;
   family: string;
+  /** Engine displacement in cc, "Electric", or "" when unsure. */
+  engine: string;
   year: string;
   status: SessionStatus;
   selectedPart: VespaPartId | null;
-  /** Filename-keyword hints only — the user always confirms visually. */
+  /** AI or filename-keyword hints — the user always confirms visually. */
   hintPartIds: VespaPartId[];
   matchNote: string;
   matchMs: number;
+  /** Present when the vision model answered; absent on fallback or old sessions. */
+  ai?: AiResult | null;
 };
 
 const KEY = "italian-rides-inspections";
@@ -34,13 +52,23 @@ export function getSession(id: string): InspectionSession | null {
   return readAll().find((s) => s.id === id) ?? null;
 }
 
-export function saveSession(s: InspectionSession): void {
-  try {
-    const rest = readAll().filter((x) => x.id !== s.id);
-    localStorage.setItem(KEY, JSON.stringify([s, ...rest].slice(0, 12)));
-  } catch {
-    // Private mode / quota: session survives in memory only.
-  }
+/**
+ * Persist a session. Returns false when the browser refused storage —
+ * callers must not navigate on false or the workspace shows "not found".
+ * Retries once with only the new session when storage is full.
+ */
+export function saveSession(s: InspectionSession): boolean {
+  const write = (list: InspectionSession[]): boolean => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(list));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const rest = readAll().filter((x) => x.id !== s.id);
+  if (write([s, ...rest].slice(0, 12))) return true;
+  return write([s]);
 }
 
 export function newSessionId(): string {
@@ -90,4 +118,39 @@ export function suggestFromName(fileName: string): VespaPartId[] {
     if (score > 0) hits.push({ id: p.id, score });
   }
   return hits.sort((a, b) => b.score - a.score).map((h) => h.id);
+}
+
+/**
+ * Validate the /api/inspect payload. Unknown component ids are dropped;
+ * null means the shape was unusable and the caller must fall back.
+ */
+export function parseAiResult(raw: unknown, model: string): AiResult | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as Record<string, unknown>;
+  if (!Array.isArray(r.components)) return null;
+  const ids = new Set(VESPA_PARTS.map((p) => p.id));
+  const components: AiComponent[] = [];
+  for (const c of r.components) {
+    if (typeof c !== "object" || c === null) continue;
+    const o = c as Record<string, unknown>;
+    if (typeof o.id !== "string" || !ids.has(o.id as VespaPartId)) continue;
+    const confidence =
+      typeof o.confidence === "number"
+        ? Math.min(1, Math.max(0, o.confidence))
+        : 0;
+    components.push({
+      id: o.id,
+      label: typeof o.label === "string" ? o.label : o.id,
+      confidence,
+      condition: typeof o.condition === "string" ? o.condition : "",
+    });
+  }
+  if (components.length === 0) return null;
+  components.sort((a, b) => b.confidence - a.confidence);
+  return {
+    model,
+    modelGuess: typeof r.modelGuess === "string" ? r.modelGuess : null,
+    components,
+    notes: typeof r.notes === "string" ? r.notes : "",
+  };
 }

@@ -12,3 +12,6 @@ primavera | File:Vespa 125 Primavera 1972.jpg | CC BY-SA 3.0 | anonymous contrib
 elettrica | File:Piaggio Vespa Elettrica.jpg | CC BY-SA 4.0 | Corvettec6r | https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Piaggio_Vespa_Elettrica.jpg/1280px-Piaggio_Vespa_Elettrica.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
 
 ILLUSTRATIONS (ill-*.jpg): AI-generated studio plates in one coherent style (white body, side profile facing left, 3:2). Project assets, representative not exact. 3 plates mirrored for direction; 3 rejected generations kept only in the working directory, not shipped.
+sample-gts-front.jpg | Cropped from File:Vespa GTS 300 white.jpg | CC0 | Michael Wahrlich | https://commons.wikimedia.org/wiki/File:Vespa_GTS_300_white.jpg
+sample-gts-drive.jpg | Cropped from File:Vespa GTS 300 white.jpg | CC0 | Michael Wahrlich | https://commons.wikimedia.org/wiki/File:Vespa_GTS_300_white.jpg
+sample-elettrica-front.jpg | Cropped from File:Piaggio Vespa Elettrica.jpg | CC BY-SA 4.0 | Corvettec6r | https://commons.wikimedia.org/wiki/File:Piaggio_Vespa_Elettrica.jpg

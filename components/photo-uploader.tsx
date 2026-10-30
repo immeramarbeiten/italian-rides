@@ -3,21 +3,37 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, Upload } from "lucide-react";
-import { VESPA_MODELS } from "@/lib/vespa-data";
+import {
+  FAMILIES,
+  engineOptions,
+  plausibilityWarning,
+} from "@/lib/vespa-families";
+import type { VespaPartId } from "@/lib/vespa-inspect";
 import {
   downscaleImage,
   newSessionId,
+  parseAiResult,
   saveSession,
   suggestFromName,
+  type AiResult,
   type InspectionSession,
 } from "@/lib/inspect-session";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const SAMPLES = [
-  { label: "White GTS 300", url: "/frieze/photo-gts.jpg", name: "sample-gts-300.jpg", credit: "Michael Wahrlich · CC0", source: "https://commons.wikimedia.org/wiki/File:Vespa_GTS_300_white.jpg" },
-  { label: "1947 Vespa 98", url: "/frieze/photo-v98.jpg", name: "sample-vespa-98.jpg", credit: "Jay Cross · CC BY 2.0", source: "https://commons.wikimedia.org/wiki/File:1947_Vespa_98_100cc.jpg" },
-  { label: "ET4 detail", url: "/frieze/photo-et4.JPG", name: "sample-et4.jpg", credit: "Späth Chr. · Public domain", source: "https://commons.wikimedia.org/wiki/File:Vespa_ET4_125.JPG" },
+  { label: "GTS 300 · front", url: "/frieze/sample-gts-front.jpg", name: "sample-gts-front.jpg", credit: "Cropped from Michael Wahrlich · CC0", source: "https://commons.wikimedia.org/wiki/File:Vespa_GTS_300_white.jpg" },
+  { label: "GTS 300 · drive side", url: "/frieze/sample-gts-drive.jpg", name: "sample-gts-drive.jpg", credit: "Cropped from Michael Wahrlich · CC0", source: "https://commons.wikimedia.org/wiki/File:Vespa_GTS_300_white.jpg" },
+  { label: "Elettrica · front", url: "/frieze/sample-elettrica-front.jpg", name: "sample-elettrica-front.jpg", credit: "Cropped from Corvettec6r · CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Piaggio_Vespa_Elettrica.jpg" },
+];
+
+const FIXTURES = [
+  { label: "Rusty exhaust", url: "/fixtures/damage-rusty-exhaust.png", name: "fixture-rusty-exhaust.png" },
+  { label: "Cracked mirror", url: "/fixtures/damage-cracked-mirror.png", name: "fixture-cracked-mirror.png" },
+  { label: "Worn tire", url: "/fixtures/damage-worn-tire.png", name: "fixture-worn-tire.png" },
+  { label: "Dented cowl", url: "/fixtures/damage-dented-cowl.png", name: "fixture-dented-cowl.png" },
+  { label: "Scored disc", url: "/fixtures/damage-scored-disc.png", name: "fixture-scored-disc.png" },
+  { label: "Corroded battery", url: "/fixtures/damage-corroded-battery.png", name: "fixture-corroded-battery.png" },
 ];
 
 const MAX_BYTES = 15 * 1024 * 1024;
@@ -41,9 +57,20 @@ export function PhotoUploader({
   const [fileName, setFileName] = useState("");
   const [sampleUrl, setSampleUrl] = useState<string | null>(null);
   const [model, setModel] = useState(initialModel);
+  const [engine, setEngine] = useState("");
   const [year, setYear] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
+
+  const engines = engineOptions(model);
+  const yearWarning = model || year ? plausibilityWarning(model, year) : null;
+
+  function onFamilyChange(v: string) {
+    setModel(v);
+    setEngine((prev) =>
+      prev && engineOptions(v).includes(prev) ? prev : "",
+    );
+  }
 
   function pickFile(file: File | undefined) {
     setError(null);
@@ -69,6 +96,28 @@ export function PhotoUploader({
     if (fileRef.current) fileRef.current.value = "";
   }
 
+  /** AI result, "unavailable" without a key, or null on any failure. */
+  async function identify(
+    dataUrl: string,
+  ): Promise<AiResult | "unavailable" | null> {
+    try {
+      const res = await fetch("/api/inspect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: dataUrl }),
+      });
+      if (res.status === 503) return "unavailable";
+      if (!res.ok) return null;
+      const data = (await res.json()) as { model?: unknown; result?: unknown };
+      return parseAiResult(
+        data.result,
+        typeof data.model === "string" ? data.model : "unknown model",
+      );
+    } catch {
+      return null;
+    }
+  }
+
   async function inspect() {
     if (!preview) return;
     setWorking(true);
@@ -79,7 +128,23 @@ export function PhotoUploader({
         ? await (await fetch(sampleUrl)).blob()
         : await (await fetch(preview)).blob();
       const img = await downscaleImage(blob);
-      const hints = suggestFromName(fileName);
+      const found = await identify(img.dataUrl);
+      const ai = found !== null && found !== "unavailable" ? found : null;
+      const hints: VespaPartId[] = ai
+        ? ai.components.map((c) => c.id as VespaPartId)
+        : suggestFromName(fileName);
+      const seen = ai
+        ? ai.components
+            .slice(0, 3)
+            .map((c) => `${c.label} ${Math.round(c.confidence * 100)}%`)
+            .join(", ")
+        : "";
+      const fullView = ai !== null && ai.components.length >= 5;
+      const matchNote = ai
+        ? `${fullView ? "Full view — everything visible; " : ""}AI (${ai.model}) sees ${seen} — confirm visually.${ai.modelGuess ? ` Model guess: ${ai.modelGuess}.` : ""}`
+        : found === "unavailable"
+          ? `AI unavailable (API key missing) — ${hints.length > 0 ? "filename hints only" : "no filename hints"} — confirm visually.`
+          : `AI call failed — ${hints.length > 0 ? "filename hints only" : "no filename hints"} — confirm visually.`;
       const session: InspectionSession = {
         id: newSessionId(),
         createdAt: new Date().toISOString(),
@@ -87,17 +152,22 @@ export function PhotoUploader({
         fileName,
         manufacturer: "Vespa",
         family: model,
+        engine,
         year,
         status: "matched",
         selectedPart: (selectedPart || null) as InspectionSession["selectedPart"],
         hintPartIds: hints,
-        matchNote:
-          hints.length > 0
-            ? `Local filename heuristic matched ${hints.length} hint(s) — confirm visually.`
-            : "No filename hints — confirm the component visually.",
+        matchNote,
         matchMs: Math.round(performance.now() - t0),
+        ai,
       };
-      saveSession(session);
+      if (!saveSession(session)) {
+        setError(
+          "This browser refused to store the inspection (storage full or blocked) — free some space and retry.",
+        );
+        setWorking(false);
+        return;
+      }
       router.push(`/inspect/${session.id}`);
     } catch (e) {
       setError(
@@ -166,6 +236,9 @@ export function PhotoUploader({
           <p className="truncate font-mono text-xs text-zinc-500">
             {fileName}
             {(() => {
+              if (FIXTURES.some((s) => s.url === sampleUrl)) {
+                return <> · AI-generated test fixture</>;
+              }
               const sample = SAMPLES.find((s) => s.url === sampleUrl);
               return sample ? (
                 <>
@@ -228,7 +301,38 @@ export function PhotoUploader({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+      <div className="mt-4">
+        <p className="font-mono text-[11px] tracking-[0.1em] text-zinc-600">
+          OR TEST WITH AN AI-GENERATED DAMAGE FIXTURE
+        </p>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {FIXTURES.map((s) => (
+            <button
+              key={s.url}
+              type="button"
+              onClick={() => pickSample(s.url, s.name)}
+              aria-pressed={sampleUrl === s.url}
+              className={cn(
+                "border bg-white text-left transition-colors hover:border-ink",
+                sampleUrl === s.url ? "border-ink" : "border-line",
+              )}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={s.url}
+                alt=""
+                loading="lazy"
+                className="aspect-[4/3] w-full object-cover"
+              />
+              <span className="block px-2 py-1.5 text-xs font-medium">
+                {s.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label className="block text-sm">
           <span className="font-medium">Manufacturer</span>
           <select className={`${inputCls} mt-1`} defaultValue="Vespa" aria-label="Manufacturer">
@@ -242,13 +346,28 @@ export function PhotoUploader({
           <span className="font-medium">Model family</span>
           <select
             value={model}
-            onChange={(e) => setModel(e.target.value)}
+            onChange={(e) => onFamilyChange(e.target.value)}
             className={`${inputCls} mt-1`}
           >
             <option value="">Not sure yet</option>
-            {VESPA_MODELS.map((m) => (
-              <option key={m.m} value={m.m}>
-                {m.m}
+            {FAMILIES.map((f) => (
+              <option key={f.label} value={f.label}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="font-medium">Engine (cc)</span>
+          <select
+            value={engine}
+            onChange={(e) => setEngine(e.target.value)}
+            className={`${inputCls} mt-1`}
+          >
+            <option value="">Not sure yet</option>
+            {engines.map((e) => (
+              <option key={e} value={e}>
+                {e === "Electric" ? "Electric" : `${e} cc`}
               </option>
             ))}
           </select>
@@ -265,6 +384,15 @@ export function PhotoUploader({
         </label>
       </div>
 
+      {yearWarning && (
+        <p
+          role="note"
+          className="mt-3 border border-amber-500 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+        >
+          {yearWarning}
+        </p>
+      )}
+
       <div className="mt-6 border border-zinc-300 bg-white p-4 text-sm">
         <p className="font-medium">For the clearest result</p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-zinc-600">
@@ -274,7 +402,8 @@ export function PhotoUploader({
         </ul>
       </div>
       <p className="mt-3 text-xs leading-relaxed text-zinc-600">
-        Stored in this browser only — nothing is uploaded.
+        Sent to the Meta Model API for identification — EXIF-stripped,
+        never stored. A copy stays in this browser only.
       </p>
 
       {error && (
@@ -289,7 +418,7 @@ export function PhotoUploader({
         className={cn(buttonVariants({ size: "lg" }), "mt-5 w-full sm:w-auto")}
       >
         {working ? (
-          "Preparing image…"
+          "Identifying component…"
         ) : (
           <>
             <Upload aria-hidden /> {ctaLabel}

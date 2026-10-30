@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { VESPA_MODELS } from "@/lib/vespa-data";
+import { FAMILIES, familyFromArchive } from "@/lib/vespa-families";
 import { VESPA_PARTS } from "@/lib/vespa-inspect";
 import { COMPONENT_INFO } from "@/lib/component-info";
 import { PhotoUploader } from "@/components/photo-uploader";
@@ -14,7 +14,9 @@ export function InspectEntry() {
   const params = useSearchParams();
   const model = params.get("model") ?? "";
   const part = params.get("part") ?? "";
-  const initialModel = VESPA_MODELS.some((m) => m.m === model) ? model : "";
+  const initialModel = FAMILIES.some((f) => f.label === model)
+    ? model
+    : familyFromArchive(model);
   const initialPart = VESPA_PARTS.some((p) => p.id === part) ? part : "wheels";
   const [partId, setPartId] = useState(initialPart);
   const selected = VESPA_PARTS.find((p) => p.id === partId) ?? VESPA_PARTS[0];

@@ -40,7 +40,7 @@ The key lives server-side only (`app/api/*`); the browser never sees it.
 
 | Step | What happens | Status |
 | ---- | ------------ | ------ |
-| See it | Photo → component + model + condition, with confidence and manual confirm | landing |
+| See it | Photo → component + model + condition, with confidence and manual confirm | live |
 | Outline it | SAM 3.1 mask drawn over your photo — tap the part, not a menu | landing |
 | Hear it | Voice-guided repair steps, hands-free "next step" | landing |
 | Fix it | Manual-grounded procedures with torque + safety notes | live (illustrative) |

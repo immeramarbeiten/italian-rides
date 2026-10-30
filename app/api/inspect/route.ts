@@ -14,6 +14,7 @@ const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
 const PROMPT = [
   "You identify Vespa scooter components in a photo.",
+  "Most daily riders are modern Vespas (GTS, GT, Primavera, Sprint, LX, S, 946, Elettrica) — name the family when recognizable, otherwise describe what you see.",
   'Reply with JSON only: {"modelGuess": string|null, "components": [{"id": one of frame|legshield|handlebar|wheels|engine|seat, "label": string, "confidence": 0-1, "condition": string}], "notes": string}.',
   "List only components actually visible. Keep condition to one short phrase per component (e.g. rusty exhaust, cracked mirror).",
   "If it is not a Vespa-style scooter, set modelGuess to null and explain in notes.",

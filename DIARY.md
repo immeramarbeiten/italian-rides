@@ -10,7 +10,7 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
 
 - P0 product spec built out in brand v1.1 language: `/archive`, `/brands/vespa`, `/models/[slug]` + `/viewer` + `/components/[slug]`, new `/inspect` + `/inspect/[sessionId]`, `/repairs/[slug]`, `/garage/[vehicleId]` + `/service/new`, `/methodology`, P1 stubs (`/parts/[slug]`, `/workshops`, `/clubs/[slug]`, `/events`, `/passports/[publicId]`, `/workshop/jobs/[id]`).
 - Build green: 124 static pages, TS clean. Verified via prerendered-HTML checks (10/10 route markers, incl. repair stepper SSR).
-- Inspect is an honest local demo: filename heuristic + manual confirm, EXIF stripped, localStorage only. No ML connected; methodology page says so.
+- Inspect calls Muse Spark vision via /api/inspect (components + confidence + manual confirm; EXIF stripped, photo sent for ID but never stored); filename-hint fallback when unreachable. Methodology page documents it.
 - Still unverified in a real browser (sandbox EPERM on sockets). Still open: SCOPE CALL, GLB export, real clubs/fitment data, video, judges README.
 
 ## Done
@@ -112,7 +112,7 @@ Hackathon rules demand meaningful Meta-model use in the product; the archive alo
 
 Build order (deadline Nov 4, 9PM ET):
 1. Repo (private first, public at submit) + judges README + Meta API proxy route (server-side key)
-2. Real AI inspect (Muse Spark multimodal): photo → component + model + condition, keep confidence + manual-confirm UX
+2. Real AI inspect (Muse Spark multimodal): photo → component + model + condition, keep confidence + manual-confirm UX — DONE (UI wired, 6 Muse Image damage fixtures in public/fixtures/)
 3. SAM 3.1 part overlays: masks as SVG polygons over the user photo (viewBox = image pixels), click-to-select
 4. Voice-guided repair mode (TTS steps + "next step" transcribe) = the glasses story in a browser
 5. Agentic diagnose loop (Spark agent + fault tools + manual citations) → $5k agentic bonus shot

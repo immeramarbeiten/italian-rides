@@ -64,16 +64,18 @@ export default function MethodologyPage() {
 
       <Section id="recognition" title="How recognition works today">
         <p>
-          The inspect flow uses a local filename heuristic plus your own
-          eyes — no machine learning is connected. Your photo is downscaled
-          in the browser with metadata stripped, stored only in this
-          browser, and you confirm the component yourself.
+          The inspect flow sends your photo to a vision model (Muse Spark
+          via the Meta Model API), which names the visible components with
+          confidence scores — and you confirm the call yourself. Your photo
+          is downscaled in the browser with metadata stripped before
+          sending, and is never stored. When the model is unreachable, the
+          flow falls back to filename hints and says so.
         </p>
         <p>
-          The production design targets a vision model plus segmentation
-          (SAM-class masks) with the same honesty rules: uncertain results
-          say so, failed requests keep your image and context, and nothing
-          ever presents a guess as a match.
+          Segmentation overlays (SAM-class masks) are next: tap the part on
+          your photo instead of picking from a list. The honesty rules stay
+          the same: uncertain results say so, failed requests keep your
+          image and context, and nothing ever presents a guess as a match.
         </p>
       </Section>
 
@@ -93,8 +95,9 @@ export default function MethodologyPage() {
           representative, not exact: compare details against the documentary
           photographs. Photographs come from Wikimedia Commons under their
           stated Creative Commons licences, credited per image and in the
-          credits file. Parts documentation is consulted for facts only —
-          manuals and catalogues are never redistributed.
+          credits file. Damage test fixtures are AI-generated with imaginary
+          faults and labelled as such. Parts documentation is consulted for
+          facts only — manuals and catalogues are never redistributed.
         </p>
       </Section>
 
