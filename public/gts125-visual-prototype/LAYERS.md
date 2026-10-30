@@ -1,0 +1,5 @@
+# Reference study layers
+
+`gts125-reference-study.png`: AI-generated illustrative foreground. `gts125-mirror-background.png` and `gts125-tyre-background.png`: AI-generated edited background plates made with the built-in image generation tool on 2026-10-30. Edits remove the image-right mirror or front wheel respectively. The photo-realistic foreground components are clipped non-destructively from the original image by SVG paths in `components/gts-pilot.tsx`; these are manually drawn masks, not SAM output. Their edges and the generated occluded areas require visual refinement. The front layer includes wheel hardware and part of the surrounding area, not just tyre rubber. Image-left / image-right is not a verified rider-side identification. These layers are an independently generated visual interpretation, not evidence of hidden geometry.
+
+The user's photo cutout is separate: it is generated in-browser from a live decoded SAM mask that the user confirms. Do not present the manually drawn reference-image layers as SAM results.

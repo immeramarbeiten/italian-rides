@@ -62,6 +62,7 @@ export function PhotoUploader({
   const [model, setModel] = useState(initialModel);
   const [engine, setEngine] = useState("");
   const [year, setYear] = useState("");
+  const [concern, setConcern] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
 
@@ -102,12 +103,13 @@ export function PhotoUploader({
   /** AI result, "unavailable" without a key, or null on any failure. */
   async function identify(
     dataUrl: string,
+    concernText: string,
   ): Promise<AiResult | "unavailable" | null> {
     try {
       const res = await fetch("/api/inspect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: dataUrl }),
+        body: JSON.stringify({ image: dataUrl, concern: concernText }),
       });
       if (res.status === 503) return "unavailable";
       if (!res.ok) return null;
@@ -131,7 +133,8 @@ export function PhotoUploader({
         ? await (await fetch(sampleUrl)).blob()
         : await (await fetch(preview)).blob();
       const img = await downscaleImage(blob);
-      const found = await identify(img.dataUrl);
+      const concernText = concern.trim().slice(0, 200);
+      const found = await identify(img.dataUrl, concernText);
       const ai = found !== null && found !== "unavailable" ? found : null;
       const hints: VespaPartId[] =
         ai && ai.components.length > 0
@@ -167,6 +170,7 @@ export function PhotoUploader({
         matchNote,
         matchMs: Math.round(performance.now() - t0),
         ai,
+        ...(concernText ? { concern: concernText } : {}),
       };
       if (!saveSession(session)) {
         setError(
@@ -391,6 +395,17 @@ export function PhotoUploader({
         </label>
       </div>
 
+      <label className="mt-3 block text-sm">
+        <span className="font-medium">Something wrong? (optional)</span>
+        <input
+          value={concern}
+          onChange={(e) => setConcern(e.target.value)}
+          placeholder="e.g. my mirror is loose"
+          maxLength={200}
+          className={`${inputCls} mt-1`}
+        />
+      </label>
+
       {yearWarning && (
         <p
           role="note"
@@ -409,8 +424,9 @@ export function PhotoUploader({
         </ul>
       </div>
       <p className="mt-3 text-xs leading-relaxed text-zinc-600">
-        Sent to the Meta Model API for identification — EXIF-stripped,
-        never stored. A copy stays in this browser only.
+        Photo and any words above go to the Meta Model API for
+        identification — EXIF-stripped, never stored. A copy stays in this
+        browser only.
       </p>
 
       {error && (

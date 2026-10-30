@@ -1,6 +1,8 @@
 import { VESPA_PARTS, type VespaPartId } from "./vespa-inspect";
 import { CATALOG_PARTS } from "./vespa-parts";
 import type { SamOverlay } from "./sam-parse";
+import type { SubId } from "./guided-inspect";
+import type { GtsPilotId } from "./gts-pilot";
 
 export type SessionStatus = "uploaded" | "matched" | "selected" | "mapped";
 
@@ -38,6 +40,14 @@ export type InspectionSession = {
   ai?: AiResult | null;
   /** SAM outline the user drew; absent until first outline. */
   sam?: SamOverlay | null;
+  /** User confirmation is tied to a particular SAM object and is cleared on re-outline. */
+  pilotSelection?: { componentId: GtsPilotId; objectId: string; confirmedAt: string } | null;
+  /** User's own words about the problem (Entry B); absent when skipped. */
+  concern?: string;
+  /** Prepared subcomponent the user settled on; absent until chosen. */
+  subPart?: SubId | null;
+  /** Guided-question answer id; absent until answered. */
+  guidedAnswer?: string | null;
 };
 
 const KEY = "italian-rides-inspections";

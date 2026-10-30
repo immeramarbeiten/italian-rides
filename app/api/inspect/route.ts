@@ -47,12 +47,14 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { image?: unknown };
+  let body: { image?: unknown; concern?: unknown };
   try {
-    body = (await req.json()) as { image?: unknown };
+    body = (await req.json()) as { image?: unknown; concern?: unknown };
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
+  const concern =
+    typeof body.concern === "string" ? body.concern.trim().slice(0, 200) : "";
   const image = typeof body.image === "string" ? body.image : "";
   if (!image.startsWith("data:image/")) {
     return NextResponse.json(
@@ -82,7 +84,12 @@ export async function POST(req: Request) {
           {
             role: "user",
             content: [
-              { type: "text", text: PROMPT },
+              {
+                type: "text",
+                text: concern
+                  ? `${PROMPT} The user adds, in their own words: "${concern}". Use it as context for which visible component matters to them; do not diagnose or invent faults.`
+                  : PROMPT,
+              },
               { type: "image_url", image_url: { url: image } },
             ],
           },

@@ -29,7 +29,7 @@ export const BOUNDED_ACTIONS: Partial<Record<VespaPartId, BoundedAction>> = {
     title: "Tyre pressure + wear check",
     mode: "owner-check",
     lines: [
-      "Check pressure cold with a gauge; use the values for your exact variant (owner's guide or sidewall).",
+      "Check pressure cold with a gauge; use the pressure specified in the owner's guide for your exact variant and load. The number on the tyre sidewall can be a maximum, not the recommended running pressure.",
       "Look for wear indicators, cuts, bulges, or uneven wear — any of these means a suitably equipped workshop, not a home fix.",
       "Never judge tread safety or roadworthiness from a photo.",
     ],

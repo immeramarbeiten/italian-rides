@@ -3,6 +3,8 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { VESPA_PARTS } from "@/lib/vespa-inspect";
+import { GTS_PILOT_COMPONENTS } from "@/lib/gts-pilot";
+import { SUBCOMPONENTS } from "@/lib/guided-inspect";
 import { getSession } from "@/lib/inspect-session";
 import { useGarage } from "@/lib/store";
 
@@ -25,8 +27,15 @@ function DraftInner() {
 
   if (!from || !session) return null;
   const partLabel =
+    (session.pilotSelection ? GTS_PILOT_COMPONENTS[session.pilotSelection.componentId]?.label : null) ??
     VESPA_PARTS.find((p) => p.id === session.selectedPart)?.label ??
     "Unidentified component";
+  // Guided sub-detail only refines the assembly path; pilot labels are specific already.
+  const subLabel =
+    !session.pilotSelection && session.subPart && SUBCOMPONENTS[session.subPart]
+      ? ` — ${SUBCOMPONENTS[session.subPart].label}`
+      : "";
+  const fullLabel = `${partLabel}${subLabel}`;
 
   function close() {
     router.replace("/garage");
@@ -50,10 +59,11 @@ function DraftInner() {
     }
     if (!target) return;
     const bits = [
-      `[${outcome}] ${partLabel}`,
+      `[${outcome}] ${fullLabel}`,
       note.trim() || session.fileName,
       `(inspection ${session.id}, recorded by user)`,
     ];
+    if (session.concern) bits.splice(1, 0, `user said: “${session.concern}”`);
     addServiceEntry({
       scooterId: target,
       date: date || new Date().toISOString().slice(0, 10),
@@ -76,7 +86,7 @@ function DraftInner() {
           className="h-20 w-20 shrink-0 border border-line object-cover"
         />
         <div className="min-w-0 text-sm">
-          <p className="font-medium">{partLabel}</p>
+          <p className="font-medium">{fullLabel}</p>
           <p className="mt-1 text-xs text-zinc-600">
             {session.family || "Unknown model"}
             {session.engine ? ` ${session.engine}` : ""} · {session.fileName}

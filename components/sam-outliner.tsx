@@ -88,7 +88,7 @@ export function SamOutliner({
       }
       if (!res.ok) throw new Error("bad response");
       const data = (await res.json()) as { matches?: SamMatch[] };
-      const ms = Array.isArray(data.matches) ? data.matches.slice(0, 3) : [];
+      const ms = Array.isArray(data.matches) ? data.matches.filter((m) => !!m.svgPath).slice(0, 3) : [];
       if (ms.length === 0) {
         setStatus("empty");
         return;
@@ -111,8 +111,8 @@ export function SamOutliner({
     const fx = (e.clientX - r.left - box.x) / box.w;
     const fy = (e.clientY - r.top - box.y) / box.h;
     if (fx < 0 || fy < 0 || fx > 1 || fy > 1) return;
-    const x = Math.round(fx * img.naturalWidth);
-    const y = Math.round(fy * img.naturalHeight);
+    const x = Math.min(img.naturalWidth - 1, Math.floor(fx * img.naturalWidth));
+    const y = Math.min(img.naturalHeight - 1, Math.floor(fy * img.naturalHeight));
     if (!consented) {
       setPending({ x, y });
       setStatus("confirm");
@@ -187,6 +187,7 @@ export function SamOutliner({
             >
               {matches.map((mm, i) => (
                 <g key={i}>
+                  <text x={mm.box.x1} y={Math.max(22, mm.box.y1 - 8)} fill="currentColor" fontSize="24">{i + 1}</text>
                   <rect
                     x={mm.box.x1}
                     y={mm.box.y1}

@@ -17,6 +17,8 @@ import {
   type SessionStatus,
 } from "@/lib/inspect-session";
 import { SamOutliner } from "@/components/sam-outliner";
+import { GtsPilot } from "@/components/gts-pilot";
+import { GuidedDetail } from "@/components/guided-detail";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -87,7 +89,12 @@ export function InspectWorkspace() {
 
   function select(id: VespaPartId | null) {
     setUnidentified(false);
-    update({ selectedPart: id, status: id ? "selected" : "matched" });
+    update({
+      selectedPart: id,
+      status: id ? "selected" : "matched",
+      subPart: null,
+      guidedAnswer: null,
+    });
   }
 
   return (
@@ -126,8 +133,9 @@ export function InspectWorkspace() {
               .slice(0, 3)
               .map((c) => ({ id: c.id, label: c.label }))}
             initial={session.sam ?? null}
-            onSave={(sam) => update({ sam })}
+            onSave={(sam) => update({ sam, pilotSelection: null })}
           />
+          <GtsPilot session={session} onConfirm={(pilotSelection) => update({ pilotSelection })} />
         </div>
 
         <div className="min-w-0">
@@ -202,7 +210,12 @@ export function InspectWorkspace() {
                 type="button"
                 onClick={() => {
                   setUnidentified(true);
-                  update({ selectedPart: null, status: "matched" });
+                  update({
+                    selectedPart: null,
+                    status: "matched",
+                    subPart: null,
+                    guidedAnswer: null,
+                  });
                 }}
                 className="mt-3 font-mono text-xs text-zinc-500 underline underline-offset-2 hover:text-rosso"
               >
@@ -261,6 +274,16 @@ export function InspectWorkspace() {
                     </p>
                   </div>
                 )}
+                <GuidedDetail
+                  part={selected.id}
+                  concern={session.concern}
+                  subPart={session.subPart ?? null}
+                  guidedAnswer={session.guidedAnswer ?? null}
+                  onAnswer={(guidedAnswer, subPart) =>
+                    update({ guidedAnswer, subPart })
+                  }
+                  onSelectSub={(subPart) => update({ subPart })}
+                />
                 <div className="mt-4 space-y-2">
                   {slug ? (
                     <Link

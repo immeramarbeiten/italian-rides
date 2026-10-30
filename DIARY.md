@@ -30,6 +30,22 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
 - P10: DEMO_SCRIPT re-cut to hero lane, LICENSE (MIT) added. Recording,
   public flip, deploy env, credits arrival still with the user (no browser in sandbox).
 
+## Oct 30 (eve) — Friend flows: Entry B + GTS pilot reference (joint commit)
+
+- Entry B: optional symptom input ("my mirror is loose") → session.concern →
+  Spark prompt context (live-probed 200, notes reference user's words).
+- Guided layer (`lib/guided-inspect.ts`, 8 tests): mirror head/stem + tyre
+  tread/sidewall subcomponents, one static question per assembly, keyword
+  suggestion that refuses ambiguous cases. UI in `guided-detail.tsx`,
+  sub-label + quoted concern carried to garage drafts.
+- Peer slice (same tree): GtsPilot canonical ids, SAM-outline confirm,
+  photo-cutout → layered-reference transition, procedural 3D mirror study,
+  `/gts-reference` page, LAYERS.md, eval script + design notes.
+- Reference-view requirement confirmed satisfied: separate prepared asset,
+  mirror/tyre layers, honest transition + captions; subs shown in 3D and
+  selectable in the guided panel. Possible later enhancement: click 3D
+  meshes directly (not wired; peer owns those files).
+
 ## Done
 
 - [x] Scaffold: Next.js app router, TS, Tailwind, R3F, drei, motion, zustand, shadcn-style `components/ui`
