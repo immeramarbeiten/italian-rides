@@ -23,11 +23,11 @@ once, on screen and in narration. Anything outside it is labelled unverified.
 | Time | Screen | Action + line |
 | ---- | ------ | ------------- |
 | 0:00 | `/` Home | Hero + frieze. "Eighty years of the wasp — and now it helps keep yours running." |
-| 0:15 | `/inspect` | Sample mirror photo loads. "Take a photo of your scooter. The app sends it to Meta's models — Spark sees, SAM outlines." |
-| 0:35 | `/inspect` | Tap the mirror. Real SAM mask draws. "Tap the part. That outline is SAM 3.1, live — not a sticker." |
-| 0:55 | workspace | Suggestion card: Mirror, left — high confidence. Confirm it. "Spark suggests, you confirm. Left or right is yours to settle." |
-| 1:15 | reference | Hotspot illustration highlights the left mirror. "The same part, on the reference sheet — an honest drawing, labelled as one." |
-| 1:30 | evidence | Expand source locator. "Every claim carries its source. What's unverified says so." Mirror action: owner note + mechanic handoff. |
+| 0:15 | `/inspect` | Type "my mirror is loose", sample mirror photo loads. "Tell it what's wrong, show it the scooter. Words plus photo go to Meta's models." |
+| 0:35 | workspace | Tap the mirror (consent first). Real SAM mask draws. "Tap the part. That outline is SAM 3.1, live — not a sticker." |
+| 0:55 | workspace | Ranked list suggests Handlebar; pilot panel offers Left/Right mirror. Confirm left. "Spark ranks, you confirm. Left or right is yours to settle." |
+| 1:15 | reference | "See the reference study": photo cutout becomes the generated GTS reference, mirror layer isolated. "Your photo becomes the reference — a study, not a reconstruction." |
+| 1:30 | evidence | Guided question ("stem or head?"), source locator, bounded mirror note. "One question, one checked next step. What's unverified says so." |
 | 1:55 | second lane | Front-tyre sample: tap, mask, confirm, owner-manual check. "Same loop, second component — a real owner-manual check." |
 | 2:20 | `/garage` | Prefilled draft → confirm → timeline entry. "Confirmed work lands on the scooter's passport. Nothing saves itself." |
 | 2:45 | close | Home hero. "Italian Rides — point, confirm, fix. Built on Meta AI." |
@@ -42,9 +42,9 @@ once, on screen and in narration. Anything outside it is labelled unverified.
 
 ## Demo path (click order)
 
-`/` → `/inspect` → mirror sample → tap → confirm left → reference → evidence →
-action → tyre sample → tap → confirm → check → garage draft → confirm →
-`/garage/[id]`
+`/` → `/inspect` (concern + mirror sample) → tap → confirm left (pilot) →
+reference transition → guided answer → action → tyre sample → tap → confirm →
+check → garage draft → confirm → `/garage/[id]`
 
 ## Fallbacks
 

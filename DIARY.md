@@ -66,6 +66,22 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
   per-instance (fine for demo); SAM re-sends full image per tap
   (inherent). Runbook's public-repo rule confirmed against user rules.
 
+## Oct 30 (late) — Recheck + journey walkthrough vs friend review #3
+
+- Confirmed friend's #1 in code: pilot path (GtsPilot, left column) and
+  assembly path (ranked list + GuidedDetail, right column) coexist;
+  select() clears sub/guided state but not pilotSelection, so the Garage
+  draft (which prefers pilotSelection) can describe a component the user
+  moved away from. Needs the single-source-of-truth refactor; not patched
+  piecemeal because pilotSelection is the peer's live mechanism.
+- Softened mirror blurbs + stem answer note to hedged, check-first copy
+  (friend's source-precision point); re-cut DEMO_SCRIPT 0:15–1:30 + click
+  path to the shipped UI (concern input, ranked suggest, pilot confirm,
+  reference transition, guided question).
+- Walkthrough traced headlessly step by step (see report); every link
+  verified in code or by earlier live probe except the browser journey,
+  the transition's look on real photos, and deploy — all user-side.
+
 ## Done
 
 - [x] Scaffold: Next.js app router, TS, Tailwind, R3F, drei, motion, zustand, shadcn-style `components/ui`

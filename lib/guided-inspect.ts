@@ -24,7 +24,7 @@ export const SUBCOMPONENTS: Record<SubId, SubInfo> = {
     parent: "handlebar",
     label: "Mirror head + glass",
     blurb:
-      "The head pivots on the stalk so you can aim it; on most modern Vespas the glass is bonded in, not a separate service part. A cracked glass or a head that will not hold position means replacement, not adjustment.",
+      "The head pivots on the stalk so you can aim it; on many modern Vespas the glass is bonded into the head rather than sold separately — your variant's parts book is the authority. A cracked glass or a head that will not hold position means replacement, not adjustment.",
     source:
       "Editorial orientation. No verified part number or mirror procedure on file — see the bounded mirror check.",
   },
@@ -33,7 +33,7 @@ export const SUBCOMPONENTS: Record<SubId, SubInfo> = {
     parent: "handlebar",
     label: "Stem + mounting area",
     blurb:
-      "The stalk screws into the handlebar or headset; its base and threads are what a 'loose mirror' usually means. Check the mount is tight and the stalk is straight — stripped threads or a bent stalk are shop work.",
+      "The stalk mounts to the handlebar or headset; a 'loose mirror' often means movement at that base joint — confirm by checking where the play is before deciding anything. Stripped threads or a bent stalk are shop work.",
     source:
       "GTS 125 Owner's Guide p.54 (mirror removal mentioned in headlamp access); Workshop Manual p.266 op. 004066 (operation code, not a part number).",
   },
@@ -80,7 +80,7 @@ export const GUIDED_QUESTIONS: Partial<Record<VespaPartId, GuidedQuestion>> = {
         id: "stem",
         label: "Stem / mount moves",
         sub: "mirror-stem",
-        note: "Look at the stalk base where it meets the bar — that is the usual culprit.",
+        note: "Check the joint where the stalk meets the bar first, and see whether the play is there or in the head.",
       },
       {
         id: "head",
