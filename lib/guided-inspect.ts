@@ -1,4 +1,5 @@
 import type { VespaPartId } from "./vespa-inspect";
+import type { GtsPilotId } from "./gts-pilot";
 
 /**
  * Friend-flow layer: two-level selection (assembly → prepared subcomponent),
@@ -127,6 +128,21 @@ export function parentOf(sub: SubId): VespaPartId {
 
 export function subLabel(sub: SubId): string {
   return SUBCOMPONENTS[sub].label;
+}
+
+/**
+ * Single-source-of-truth bridge: a mask-bound pilot confirmation resolves
+ * to its parent assembly, so the guided flow, bounded action and Garage
+ * draft always describe the same component the pilot confirmed.
+ */
+const PILOT_PARENT: Record<GtsPilotId, VespaPartId> = {
+  "gts125-mirror-left": "handlebar",
+  "gts125-mirror-right": "handlebar",
+  "gts125-front-tyre": "wheels",
+};
+
+export function pilotToAssembly(id: GtsPilotId): VespaPartId {
+  return PILOT_PARENT[id];
 }
 
 /**

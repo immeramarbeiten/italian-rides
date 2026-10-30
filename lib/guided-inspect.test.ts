@@ -4,6 +4,7 @@ import {
   GUIDED_QUESTIONS,
   SUBCOMPONENTS,
   parentOf,
+  pilotToAssembly,
   pxGuidesApply,
   subLabel,
   suggestAnswer,
@@ -61,6 +62,14 @@ describe("suggestAnswer", () => {
     assert.equal(suggestAnswer("tyre looks funny", "wheels"), null);
     assert.equal(suggestAnswer("my mirror is loose", "wheels"), null);
     assert.equal(suggestAnswer("hello", "frame"), null);
+  });
+});
+
+describe("pilotToAssembly", () => {
+  it("resolves each pilot id to its parent assembly", () => {
+    assert.equal(pilotToAssembly("gts125-mirror-left"), "handlebar");
+    assert.equal(pilotToAssembly("gts125-mirror-right"), "handlebar");
+    assert.equal(pilotToAssembly("gts125-front-tyre"), "wheels");
   });
 });
 

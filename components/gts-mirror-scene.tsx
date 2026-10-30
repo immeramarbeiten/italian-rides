@@ -98,15 +98,77 @@ function Mirror({ side, selected }: { side: "left" | "right"; selected: boolean 
 }
 
 
-/** Instrument lens and graphics are interpretive; not a faithful speedometer face. */
+/** Original artwork informed by the owner's manual's analogue panel; not calibrated instrumentation. */
+function makeInstrumentTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024; canvas.height = 768;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Instrument canvas unavailable");
+  ctx.beginPath();
+  ctx.moveTo(165, 210); ctx.bezierCurveTo(215, 55, 355, 15, 512, 18);
+  ctx.bezierCurveTo(670, 15, 810, 55, 860, 210); ctx.lineTo(994, 355);
+  ctx.bezierCurveTo(1010, 385, 985, 425, 950, 462); ctx.lineTo(850, 667);
+  ctx.bezierCurveTo(825, 730, 755, 750, 690, 752); ctx.lineTo(330, 752);
+  ctx.bezierCurveTo(265, 750, 195, 730, 170, 667); ctx.lineTo(70, 462);
+  ctx.bezierCurveTo(35, 425, 14, 385, 30, 355); ctx.closePath(); ctx.clip();
+  ctx.fillStyle = "#e7e5d9"; ctx.fillRect(0,0,1024,768);
+  // Main speedometer and its nested km/h / mph scales.
+  ctx.fillStyle="#d5d2c4"; ctx.beginPath(); ctx.ellipse(370,372,300,260,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="#f4f2e8"; ctx.beginPath(); ctx.ellipse(370,372,286,246,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle="#363a36"; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(370,430,228,Math.PI*1.05,Math.PI*1.95); ctx.stroke();
+  for(let i=0;i<=28;i++) {
+    const angle=Math.PI*1.05+i*Math.PI*.9/28, big=i%4===0;
+    const x=Math.cos(angle), y=Math.sin(angle);
+    ctx.strokeStyle="#2e3330";ctx.lineWidth=big?5:2.5;
+    ctx.beginPath();ctx.moveTo(370+x*(big?205:213),430+y*(big?205:213));ctx.lineTo(370+x*226,430+y*226);ctx.stroke();
+    if(big) {ctx.fillStyle="#222724";ctx.font="bold 29px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(String(i*5),370+x*174,430+y*174);}
+  }
+  ctx.fillStyle="#59605a";ctx.font="17px Arial";ctx.textAlign="center";ctx.fillText("km/h",370,382);
+  ctx.fillStyle="#282d29";ctx.fillRect(280,500,180,36);ctx.fillStyle="#e5e5da";ctx.font="23px monospace";ctx.fillText("00000",370,519);
+  ctx.strokeStyle="#383c37";ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(370,430);ctx.lineTo(241,464);ctx.stroke();ctx.fillStyle="#252a27";ctx.beginPath();ctx.arc(370,430,19,0,Math.PI*2);ctx.fill();
+  // Two small analogue instruments, indicators and a separate clock.
+  const dial=(cx:number,cy:number,label:string,needle:number) => {ctx.fillStyle="#f7f5eb";ctx.beginPath();ctx.arc(cx,cy,83,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#8b8d80";ctx.lineWidth=3;ctx.stroke();ctx.fillStyle="#555b54";ctx.font="bold 19px Arial";ctx.textAlign="center";ctx.fillText(label,cx,cy-42);for(let i=0;i<7;i++){const a=Math.PI*1.1+i*Math.PI*.8/6;ctx.strokeStyle="#626860";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*58,cy+Math.sin(a)*58);ctx.lineTo(cx+Math.cos(a)*70,cy+Math.sin(a)*70);ctx.stroke()}ctx.strokeStyle="#323833";ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(cx,cy+12);ctx.lineTo(cx+Math.cos(needle)*48,cy+Math.sin(needle)*48);ctx.stroke();ctx.fillStyle="#343934";ctx.beginPath();ctx.arc(cx,cy+12,10,0,Math.PI*2);ctx.fill()};
+  dial(760,276,"FUEL",Math.PI*1.7); dial(760,475,"TEMP",Math.PI*1.4);
+  const colors=["#4f704f","#bb8f3f","#a54b3d","#637f9c"];
+  colors.forEach((color,i)=>{ctx.fillStyle="#666a60";ctx.beginPath();ctx.ellipse(290+i*115,95,35,24,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(290+i*115,95,25,16,0,0,Math.PI*2);ctx.fill()});
+  ctx.fillStyle="#646960";ctx.fillRect(300,620,175,65);ctx.fillStyle="#a9b6a2";ctx.fillRect(309,629,157,47);ctx.fillStyle="#364039";ctx.font="bold 30px monospace";ctx.textAlign="center";ctx.fillText("10:24",388,655);
+  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;return texture;
+}
+/** A shallow housing bridges the flat dial and the curved headset below it. */
+function makeInstrumentHousing() {
+  const x = (v: number) => (v - 512) * .76 / 1024;
+  const y = (v: number) => (384 - v) * .54 / 768;
+  const shape = new THREE.Shape();
+  shape.moveTo(x(165), y(210));
+  shape.bezierCurveTo(x(215), y(55), x(355), y(15), x(512), y(18));
+  shape.bezierCurveTo(x(670), y(15), x(810), y(55), x(860), y(210));
+  shape.lineTo(x(994), y(355));
+  shape.bezierCurveTo(x(1010), y(385), x(985), y(425), x(950), y(462));
+  shape.lineTo(x(850), y(667));
+  shape.bezierCurveTo(x(825), y(730), x(755), y(750), x(690), y(752));
+  shape.lineTo(x(330), y(752));
+  shape.bezierCurveTo(x(265), y(750), x(195), y(730), x(170), y(667));
+  shape.lineTo(x(70), y(462));
+  shape.bezierCurveTo(x(35), y(425), x(14), y(385), x(30), y(355));
+  shape.closePath();
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: .30, bevelEnabled: true, bevelSize: .006, bevelThickness: .005,
+    bevelSegments: 3, curveSegments: 32,
+  });
+  // Extend below the face into the headset, so the edge has a real support.
+  geometry.translate(0, 0, -.30);
+  return geometry;
+}
 function InstrumentPanel() {
-  return <group name="instrument-panel" position={[0,.235,-.055]} rotation={[-Math.PI/2,0,0]}>
-    <mesh name="instrument-surround" scale={[1,.72,1]}><circleGeometry args={[.36,64]}/><meshStandardMaterial color="#626b68" metalness={.5} roughness={.3} side={THREE.DoubleSide}/></mesh>
-    <mesh name="instrument-dial" position={[0,0,.012]} scale={[1,.72,1]}><circleGeometry args={[.328,64]}/><meshStandardMaterial color="#282f30" metalness={.12} roughness={.65} side={THREE.DoubleSide}/></mesh>
-    {Array.from({length:17},(_,i)=>{const angle=Math.PI*.12+i*Math.PI*.76/16;return <mesh key={i} position={[Math.cos(angle)*.265,Math.sin(angle)*.19,.02]} rotation={[0,0,angle-Math.PI/2]}><planeGeometry args={[.008,i%4===0?.045:.025]}/><meshBasicMaterial color="#d1d4ce" side={THREE.DoubleSide}/></mesh>})}
-    <mesh name="speedometer-needle" position={[-.07,.065,.024]} rotation={[0,0,.8]}><planeGeometry args={[.012,.20]}/><meshBasicMaterial color="#d95b42" side={THREE.DoubleSide}/></mesh>
-    <mesh name="speedometer-hub" position={[0,0,.027]}><circleGeometry args={[.021,20]}/><meshStandardMaterial color="#bbbeb7" metalness={.6} roughness={.3} side={THREE.DoubleSide}/></mesh>
-    <mesh name="instrument-glass" position={[0,0,.031]} scale={[1,.72,1]}><circleGeometry args={[.33,64]}/><meshPhysicalMaterial color="#e3edeb" transparent opacity={.16} depthWrite={false} roughness={.1} metalness={.2} side={THREE.DoubleSide}/></mesh>
+  const texture = useMemo(makeInstrumentTexture, []);
+  const housing = useMemo(makeInstrumentHousing, []);
+  return <group name="instrument-panel" position={[0,.315,-.035]} rotation={[-Math.PI/2,0,Math.PI]}>
+    <mesh name="instrument-housing" geometry={housing}>
+      <meshStandardMaterial color="#b7bbb2" metalness={.38} roughness={.3}/>
+    </mesh>
+    <mesh name="instrument-face" position={[0,0,.012]}>
+      <planeGeometry args={[.76,.54]}/><meshBasicMaterial map={texture} transparent side={THREE.DoubleSide}/>
+    </mesh>
   </group>;
 }
 function SteeringNeck() {
@@ -127,10 +189,10 @@ function Assembly({ side }: { side: "left" | "right" }) {
   </group>;
 }
 
-export default function GtsMirrorScene({ componentId }: { componentId: GtsPilotId }) {
+export default function GtsMirrorScene({ componentId, view = "overview" }: { componentId: GtsPilotId; view?: "overview" | "dashboard" }) {
   const side = componentId === "gts125-mirror-left" ? "left" : "right";
   return <div className="h-[420px] w-full bg-zinc-100" aria-label={`Interactive illustrative ${side} mirror and handlebar model`}>
-    <Canvas camera={{position:[2.1,1.65,4.7],fov:34}} dpr={[1,1.5]}>
+    <Canvas key={view} camera={{position: view === "dashboard" ? [0,1.72,-1.5] : [2.1,1.65,4.7],fov: view === "dashboard" ? 30 : 34}} dpr={[1,1.5]}>
       <color attach="background" args={["#f0f0ee"]}/>
       <ambientLight intensity={.45}/><directionalLight position={[3,6,5]} intensity={2}/><directionalLight position={[-4,3,-1]} intensity={.7}/>
       <Environment resolution={128}>
@@ -139,7 +201,7 @@ export default function GtsMirrorScene({ componentId }: { componentId: GtsPilotI
         <Lightformer form="rect" intensity={2} position={[4,3,-1]} rotation={[0,-Math.PI/2,0]} scale={[5,2,1]}/>
       </Environment>
       <Assembly side={side}/><ContactShadows position={[0,-.80,0]} opacity={.22} scale={7} blur={2.8}/>
-      <OrbitControls target={[0,.22,0]} enablePan={false} minDistance={2.8} maxDistance={8}/>
+      <OrbitControls target={view === "dashboard" ? [0,.20,-.03] : [0,.22,0]} enablePan={false} minDistance={view === "dashboard" ? 1.2 : 2.8} maxDistance={8}/>
     </Canvas>
   </div>;
 }

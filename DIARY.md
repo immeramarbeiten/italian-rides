@@ -82,6 +82,18 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
   verified in code or by earlier live probe except the browser journey,
   the transition's look on real photos, and deploy — all user-side.
 
+## Oct 31 — Unification + live test pack (gap closure)
+
+- One confirmed component now drives everything: pilot confirm resolves
+  via `pilotToAssembly` to its parent assembly + mapped + clears detail;
+  assembly select / not-identifiable clears pilotSelection. Garage draft
+  can no longer name a component the user moved away from. Peer files
+  untouched; mapping + tests in guided-inspect.
+- RUNBOOK touched up (concern input, pilot confirm, transition, LIVE_TEST
+  pointer, re-tap row, mask/transition limits). LIVE_TEST.md: 13 tick-box
+  cases (2 demo lanes, 6 corrections/failures, 5 robustness).
+- Also committed peer's 3D instrument-view work after review + green build.
+
 ## Done
 
 - [x] Scaffold: Next.js app router, TS, Tailwind, R3F, drei, motion, zustand, shadcn-style `components/ui`

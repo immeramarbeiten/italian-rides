@@ -9,7 +9,7 @@ import {
   rankPartsByHints,
   type VespaPartId,
 } from "@/lib/vespa-inspect";
-import { pxGuidesApply } from "@/lib/guided-inspect";
+import { pilotToAssembly, pxGuidesApply } from "@/lib/guided-inspect";
 import { COMPONENT_INFO } from "@/lib/component-info";
 import { ARCHIVE_MODELS } from "@/lib/models";
 import { BOUNDED_ACTIONS } from "@/lib/bounded-actions";
@@ -96,11 +96,14 @@ export function InspectWorkspace() {
 
   function select(id: VespaPartId | null) {
     setUnidentified(false);
+    // Assembly choice wins: a mask-bound pilot pick for another component
+    // must not linger and contradict the Garage draft.
     update({
       selectedPart: id,
       status: id ? "selected" : "matched",
       subPart: null,
       guidedAnswer: null,
+      pilotSelection: null,
     });
   }
 
@@ -146,7 +149,24 @@ export function InspectWorkspace() {
             initial={session.sam ?? null}
             onSave={(sam) => update({ sam, pilotSelection: null })}
           />
-          <GtsPilot session={session} onConfirm={(pilotSelection) => update({ pilotSelection })} />
+          <GtsPilot
+            session={session}
+            onConfirm={(pilotSelection) =>
+              update(
+                pilotSelection
+                  ? {
+                      pilotSelection,
+                      selectedPart: pilotToAssembly(
+                        pilotSelection.componentId,
+                      ),
+                      status: "mapped",
+                      subPart: null,
+                      guidedAnswer: null,
+                    }
+                  : { pilotSelection },
+              )
+            }
+          />
         </div>
 
         <div className="min-w-0">
@@ -233,6 +253,7 @@ export function InspectWorkspace() {
                     status: "matched",
                     subPart: null,
                     guidedAnswer: null,
+                    pilotSelection: null,
                   });
                 }}
                 className="mt-3 font-mono text-xs text-zinc-500 underline underline-offset-2 hover:text-rosso"
