@@ -23,8 +23,10 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
   owner-manual check — no part numbers, torque, or fitment verdicts.
 - Garage prefill drafts from sessions; saveSession returns boolean + retry.
 - Hotspot reference redrawn as clean line-art sheet (ScooterStage); trace SVG deleted.
-- P9 mini-eval: 5-photo scripted journey checklist in P10 runbook (below).
-  Held-out set + human ground truth still needed before any accuracy claim.
+- P9 mini-eval RUN on 5 held-out Commons photos via real handlers + live APIs:
+  inspect 5/5 real (1 family miss: HPE→Primavera, validates manual correct);
+  SAM 15/15 real masks, pixel-verified (mirrors 4/4, clear tyres 3/3,
+  occluded-sliver → parent latch documented). See EVAL_REPORT.md + RUNBOOK.md.
 - P10: DEMO_SCRIPT re-cut to hero lane, LICENSE (MIT) added. Recording,
   public flip, deploy env, credits arrival still with the user (no browser in sandbox).
 
