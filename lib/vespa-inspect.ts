@@ -14,6 +14,23 @@ export type VespaPart = {
   note: string;
 };
 
+/**
+ * Order part ids by AI likelihood: hinted components first (the caller
+ * passes them pre-sorted by confidence), the rest in catalog order.
+ * Without hints, catalog order. Ranking suggests, never decides —
+ * the user always confirms.
+ */
+export function rankPartsByHints(
+  hints: { id: string }[] | null,
+): VespaPartId[] {
+  const ids = VESPA_PARTS.map((p) => p.id);
+  if (!hints) return ids;
+  const rank = new Map(hints.map((c, i) => [c.id, i]));
+  return [...ids].sort(
+    (a, b) => (rank.get(a) ?? hints.length) - (rank.get(b) ?? hints.length),
+  );
+}
+
 export const VESPA_PARTS: VespaPart[] = [
   {
     id: "frame",

@@ -63,6 +63,22 @@ scooter, not the tyre. Mitigation is product-side (retry/confirm copy
 already in the demo script's mandatory correction beat), not a model fix
 we can ship before Nov 4.
 
+## Mask-edge addendum (Oct 30, same harness)
+
+The friend review correctly noted P9 verified boxes, not mask edges. Two
+masks were re-fetched (identical boxes — deterministic) and their decoded
+`svgPath` polygons rendered onto the photos:
+
+- HPE front tyre: mask hugs the tread edges tightly, excludes pavement.
+  Cutout-grade.
+- Rossa mirror: region-correct but loose — includes background around the
+  thin stalk (rendering filled subpaths additively, so true edges may be
+  slightly tighter than shown; still not cutout-grade).
+
+Conclusion: decoded masks are real and sometimes excellent; mirror edges
+need the visual refinement already documented in `LAYERS.md` before a
+cinematic cutout can be claimed.
+
 ## What this does NOT claim
 
 - No accuracy percentage: n=5 photos is a smoke test, not a benchmark.

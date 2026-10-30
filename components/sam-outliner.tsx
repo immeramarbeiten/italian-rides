@@ -48,6 +48,10 @@ export function SamOutliner({
   const [label, setLabel] = useState(initial?.label ?? "");
   const [consented, setConsented] = useState(false);
   const [pending, setPending] = useState<{ x: number; y: number } | null>(null);
+  const [pendingPhrase, setPendingPhrase] = useState<{
+    phrase: string;
+    label: string;
+  } | null>(null);
 
   const shown = status === "shown" && matches.length > 0;
 
@@ -124,6 +128,16 @@ export function SamOutliner({
     );
   }
 
+  function outlineByName(h: { id: string; label: string }) {
+    const body = { mode: "phrase", phrase: PART_NOUN[h.id] ?? h.label };
+    if (consented) {
+      void run(body, h.label);
+      return;
+    }
+    setPendingPhrase({ phrase: body.phrase, label: h.label });
+    setStatus("confirm");
+  }
+
   function confirmOutline() {
     const img = imgRef.current;
     setConsented(true);
@@ -138,10 +152,16 @@ export function SamOutliner({
         },
         "tap",
       );
+    } else if (pendingPhrase) {
+      void run(
+        { mode: "phrase", phrase: pendingPhrase.phrase },
+        pendingPhrase.label,
+      );
     } else {
       setStatus(matches.length > 0 ? "shown" : "idle");
     }
     setPending(null);
+    setPendingPhrase(null);
   }
 
   function pickSide(s: "" | "L" | "R") {
@@ -225,7 +245,11 @@ export function SamOutliner({
 
       {status === "confirm" && (
         <div className="mt-2 border border-line bg-white px-3 py-2 text-sm">
-          <p>Tapping sends this photo to Meta for outlining.</p>
+          <p>
+            {pendingPhrase
+              ? `Outlining “${pendingPhrase.label}” sends this photo to Meta.`
+              : "Tapping sends this photo to Meta for outlining."}
+          </p>
           <div className="mt-2 flex gap-2">
             <button
               type="button"
@@ -238,6 +262,7 @@ export function SamOutliner({
               type="button"
               onClick={() => {
                 setPending(null);
+                setPendingPhrase(null);
                 setStatus(matches.length > 0 ? "shown" : "idle");
               }}
               className="border border-line px-3 py-1 font-mono text-xs"
@@ -282,12 +307,7 @@ export function SamOutliner({
               key={h.id}
               type="button"
               disabled={status === "loading"}
-              onClick={() =>
-                void run(
-                  { mode: "phrase", phrase: PART_NOUN[h.id] ?? h.label },
-                  h.label,
-                )
-              }
+              onClick={() => outlineByName(h)}
               className={cn(
                 "border px-3 py-1.5 font-mono text-xs",
                 status === "loading"

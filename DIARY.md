@@ -46,6 +46,26 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
   selectable in the guided panel. Possible later enhancement: click 3D
   meshes directly (not wired; peer owns those files).
 
+## Oct 30 (night) — Dynamic options + friend-review fixes + arch pass
+
+- Inspect options now AI-ranked: `rankPartsByHints` floats hinted parts
+  first in confidence order, top pick badged SUGGESTED (user still
+  confirms); outline-by-name uses short part labels. 4 tests.
+- Friend fixes: privacy wording precise in uploader + methodology ("cannot
+  verify provider retention"); outline-by-name gated behind SAM consent;
+  saveSession never silently evicts (false → existing "free space" error);
+  PX repair guides hidden for modern/unknown families (`pxGuidesApply` +
+  test); README loop table matches shipped state (voice cut, SAM live).
+  Already-fixed before review landed: sidewall wording, viewer param,
+  SAM↔component binding + evidence gating (peer's pilotSelection/scope).
+- Mask edges eyeballed: HPE tyre cutout-grade, rossa mirror loose —
+  addendum in EVAL_REPORT.md.
+- Arch: added app/error.tsx + not-found.tsx; 60s AbortSignal timeouts on
+  both AI routes. Noted, not changed: 12×~400KB localStorage sessions are
+  the quota vector (now fails loud, not silent); rate limit is
+  per-instance (fine for demo); SAM re-sends full image per tap
+  (inherent). Runbook's public-repo rule confirmed against user rules.
+
 ## Done
 
 - [x] Scaffold: Next.js app router, TS, Tailwind, R3F, drei, motion, zustand, shadcn-style `components/ui`

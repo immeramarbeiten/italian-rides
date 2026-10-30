@@ -73,6 +73,7 @@ export async function POST(req: Request) {
   try {
     res = await fetch(`${BASE_URL}/chat/completions`, {
       method: "POST",
+      signal: AbortSignal.timeout(60_000),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${key}`,

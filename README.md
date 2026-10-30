@@ -17,7 +17,7 @@
   <a href="#credits">Credits</a>
 </p>
 
-Point your camera at your Vespa and it identifies the component, outlines it on your photo, talks you through the repair hands-free, and files the work on your scooter's passport. Underneath sits a twelve-model archive — every story, spec, and procedure the mechanic reasons over.
+Point your camera at your Vespa and it identifies the component, outlines it on your photo, asks one guided question about the detail, and drafts the work onto your scooter's passport for you to confirm. Underneath sits a twelve-model archive — every story, spec, and procedure the mechanic reasons over.
 
 Built for the Meta AI Developer Hackathon, Oct 27 – Nov 4 2026. Every commit here is hackathon work. Demo video lands before the deadline.
 
@@ -40,15 +40,15 @@ The key lives server-side only (`app/api/*`); the browser never sees it.
 
 | Step | What happens | Status |
 | ---- | ------------ | ------ |
-| See it | Photo → component + model + condition, with confidence and manual confirm | live |
-| Outline it | SAM 3.1 mask drawn over your photo — tap the part, not a menu | landing |
-| Hear it | Voice-guided repair steps, hands-free "next step" | landing |
-| Fix it | Manual-grounded procedures with torque + safety notes | live (illustrative) |
-| Keep it | Service record filed to your scooter's passport in the garage | live |
+| See it | Photo + your words → ranked components, you confirm | live |
+| Outline it | Live SAM 3.1 mask over your photo, after consent | live |
+| Narrow it | One guided question → prepared mirror/tyre sub-detail | live |
+| Fix it | Two bounded checks (mirror note, tyre check); generic guides are PX-only | live |
+| Keep it | Draft service record — you confirm before anything saves | live |
 
 ## What's real, what's illustrative
 
-Everything here is labeled like a museum. The archive — twelve model records, specs, timelines, the 3D viewer, the garage — is real and runs today. Fitment data and repair procedures are illustrative patterns compiled from public catalogue shapes: always confirm part numbers and torque values against the workshop manual for your exact variant. AI features stay marked `landing` until they ship; nothing here fakes a model call.
+Everything here is labeled like a museum. The archive — twelve model records, specs, timelines, the 3D viewer, the garage — is real and runs today. Fitment data and repair procedures are illustrative PX-pattern content, hidden from modern scooters: always confirm part numbers and torque values against the workshop manual for your exact variant. Inspect, SAM outlines, and guided detail all call the live Meta Model API; nothing here fakes a model call. Voice mode is not built.
 
 ## Inside the repo
 

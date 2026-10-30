@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import { VESPA_PARTS, type VespaPartId } from "@/lib/vespa-inspect";
+import {
+  VESPA_PARTS,
+  rankPartsByHints,
+  type VespaPartId,
+} from "@/lib/vespa-inspect";
+import { pxGuidesApply } from "@/lib/guided-inspect";
 import { COMPONENT_INFO } from "@/lib/component-info";
 import { ARCHIVE_MODELS } from "@/lib/models";
 import { BOUNDED_ACTIONS } from "@/lib/bounded-actions";
@@ -86,6 +91,8 @@ export function InspectWorkspace() {
   const mapped = session.status === "mapped";
   const ai = session.ai ?? null;
   const action = selected ? (BOUNDED_ACTIONS[selected.id] ?? null) : null;
+  const rankedIds = rankPartsByHints(ai ? ai.components : null);
+  const topHint = ai && ai.components.length > 0 ? ai.components[0].id : null;
 
   function select(id: VespaPartId | null) {
     setUnidentified(false);
@@ -131,7 +138,11 @@ export function InspectWorkspace() {
             fileName={session.fileName}
             hints={(ai?.components ?? [])
               .slice(0, 3)
-              .map((c) => ({ id: c.id, label: c.label }))}
+              .map((c) => ({
+                id: c.id,
+                label:
+                  VESPA_PARTS.find((p) => p.id === c.id)?.label ?? c.label,
+              }))}
             initial={session.sam ?? null}
             onSave={(sam) => update({ sam, pilotSelection: null })}
           />
@@ -159,9 +170,11 @@ export function InspectWorkspace() {
                 What do you see?
               </h2>
               <ul className="mt-3 space-y-2">
-                {VESPA_PARTS.map((p) => {
+                {rankedIds.map((id) => {
+                  const p = VESPA_PARTS.find((x) => x.id === id)!;
                   const active = session.selectedPart === p.id;
                   const hinted = session.hintPartIds.includes(p.id);
+                  const suggested = topHint === p.id;
                   const partConf = ai?.components.find(
                     (c) => c.id === p.id,
                   )?.confidence;
@@ -189,6 +202,11 @@ export function InspectWorkspace() {
                         <span className="min-w-0 flex-1">
                           <span className="block text-sm font-medium">
                             {p.label}
+                            {suggested && !active && (
+                              <span className="ml-2 bg-rosso px-1.5 py-0.5 font-mono text-[10px] text-white">
+                                SUGGESTED
+                              </span>
+                            )}
                             {hinted && (
                               <span className="ml-2 font-mono text-[10px] text-zinc-500">
                                 {partConf !== undefined
@@ -301,12 +319,20 @@ export function InspectWorkspace() {
                       .
                     </p>
                   )}
-                  <Link
-                    href={`/repairs/${selected.id}`}
-                    className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-                  >
-                    Explore repair information
-                  </Link>
+                  {pxGuidesApply(session.family || "") ? (
+                    <Link
+                      href={`/repairs/${selected.id}`}
+                      className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+                    >
+                      Explore repair information
+                    </Link>
+                  ) : (
+                    <p className="border border-dashed border-line px-3 py-2 text-center text-xs text-zinc-500">
+                      Generic repair guides are PX-pattern only — not shown
+                      for {session.family || "unknown scooters"}. The checked
+                      note above is your guidance here.
+                    </p>
+                  )}
                   <Link
                     href={`/garage?from=${session.id}`}
                     className={cn(buttonVariants({ variant: "ghost" }), "w-full")}

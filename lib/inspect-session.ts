@@ -68,20 +68,18 @@ export function getSession(id: string): InspectionSession | null {
 /**
  * Persist a session. Returns false when the browser refused storage —
  * callers must not navigate on false or the workspace shows "not found".
- * Retries once with only the new session when storage is full.
+ * Never discards other sessions to make room: on quota errors the caller
+ * tells the user to free space. The 12-session cap below is the only
+ * eviction, keeping the cache bounded.
  */
 export function saveSession(s: InspectionSession): boolean {
-  const write = (list: InspectionSession[]): boolean => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(list));
-      return true;
-    } catch {
-      return false;
-    }
-  };
-  const rest = readAll().filter((x) => x.id !== s.id);
-  if (write([s, ...rest].slice(0, 12))) return true;
-  return write([s]);
+  try {
+    const rest = readAll().filter((x) => x.id !== s.id);
+    localStorage.setItem(KEY, JSON.stringify([s, ...rest].slice(0, 12)));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function newSessionId(): string {
@@ -137,6 +135,8 @@ export function suggestFromName(fileName: string): VespaPartId[] {
 export function confidenceBand(c: number): "high" | "medium" | "low" {
   return c >= 0.85 ? "high" : c >= 0.6 ? "medium" : "low";
 }
+
+
 
 /**
  * Validate the /api/inspect payload. Unknown component ids are dropped.

@@ -4,6 +4,7 @@ import {
   GUIDED_QUESTIONS,
   SUBCOMPONENTS,
   parentOf,
+  pxGuidesApply,
   subLabel,
   suggestAnswer,
 } from "./guided-inspect.ts";
@@ -60,5 +61,15 @@ describe("suggestAnswer", () => {
     assert.equal(suggestAnswer("tyre looks funny", "wheels"), null);
     assert.equal(suggestAnswer("my mirror is loose", "wheels"), null);
     assert.equal(suggestAnswer("hello", "frame"), null);
+  });
+});
+
+describe("pxGuidesApply", () => {
+  it("allows PX-pattern guides only for PX and classics", () => {
+    assert.equal(pxGuidesApply("PX"), true);
+    assert.equal(pxGuidesApply("Classic / other"), true);
+    assert.equal(pxGuidesApply("GTS"), false);
+    assert.equal(pxGuidesApply("Primavera (modern)"), false);
+    assert.equal(pxGuidesApply(""), false);
   });
 });

@@ -68,14 +68,18 @@ export default function MethodologyPage() {
           via the Meta Model API), which names the visible components with
           confidence scores — and you confirm the call yourself. Your photo
           is downscaled in the browser with metadata stripped before
-          sending, and is never stored. When the model is unreachable, the
-          flow falls back to filename hints and says so.
+          sending. A copy stays in this browser&apos;s local storage only;
+          we cannot verify the model provider&apos;s retention. When the
+          model is unreachable, the flow falls back to filename hints and
+          says so.
         </p>
         <p>
-          Segmentation overlays (SAM-class masks) are next: tap the part on
-          your photo instead of picking from a list. The honesty rules stay
-          the same: uncertain results say so, failed requests keep your
-          image and context, and nothing ever presents a guess as a match.
+          Segmentation overlays (live SAM 3.1 masks) let you tap the part
+          on your photo instead of picking from a list — after an explicit
+          consent step, for taps and outline-by-name alike. The honesty
+          rules stay the same: uncertain results say so, failed requests
+          keep your image and context, and nothing ever presents a guess
+          as a match.
         </p>
       </Section>
 

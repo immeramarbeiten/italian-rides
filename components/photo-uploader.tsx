@@ -425,8 +425,8 @@ export function PhotoUploader({
       </div>
       <p className="mt-3 text-xs leading-relaxed text-zinc-600">
         Photo and any words above go to the Meta Model API for
-        identification — EXIF-stripped, never stored. A copy stays in this
-        browser only.
+        identification — EXIF-stripped. A copy stays in this browser only;
+        we cannot verify the provider&apos;s retention.
       </p>
 
       {error && (

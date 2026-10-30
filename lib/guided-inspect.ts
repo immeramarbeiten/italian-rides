@@ -129,6 +129,15 @@ export function subLabel(sub: SubId): string {
   return SUBCOMPONENTS[sub].label;
 }
 
+/**
+ * Generic repair guides are PX-pattern procedures with PX torque values.
+ * They apply only to PX and classic machines — never to modern families
+ * or unknown scooters, where they would mislead more than help.
+ */
+export function pxGuidesApply(family: string): boolean {
+  return family === "PX" || family === "Classic / other";
+}
+
 const RULES: { part: VespaPartId; answer: string; words: string[] }[] = [
   { part: "handlebar", answer: "head", words: ["glass", "crack", "reflect", "shatter", "face"] },
   { part: "handlebar", answer: "stem", words: ["stalk", "stem", "mount", "base", "thread", "bolt", "screw"] },
