@@ -1,3 +1,4 @@
+import { GarageDraft } from "@/components/garage-draft";
 import { GarageManager } from "@/components/garage-manager";
 
 export const metadata = { title: "My Garage — Italian Rides" };
@@ -18,6 +19,7 @@ export default function GaragePage() {
       <p className="mt-4 border border-dashed border-line bg-white px-4 py-3 font-mono text-[11px] text-zinc-500">
         YOUR GARAGE LIVES IN THIS BROWSER ONLY — NO ACCOUNT YET. EXPORT A COPY BEFORE SWITCHING DEVICES.
       </p>
+      <GarageDraft />
       <GarageManager />
     </div>
   );

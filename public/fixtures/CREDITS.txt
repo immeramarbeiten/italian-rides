@@ -2,3 +2,4 @@ Italian Rides AI-inspect test fixtures (modern daily riders: GTS/Primavera gener
 All six images AI-generated with Muse Image (muse-image-1.0) via the Meta Model API, Oct 29 2026, for this project.
 They depict IMAGINARY damage for testing identification — always labeled "AI-generated test fixture" in the UI.
 damage-rusty-exhaust.png | damage-cracked-mirror.png | damage-worn-tire.png | damage-dented-cowl.png | damage-scored-disc.png | damage-corroded-battery.png
+healthy-mirror.png | healthy-tyre.png | AI-generated with Muse Image (muse-image-1.0), Oct 30 2026 | Undamaged GTS close-ups for the inspect hero lane, labeled in UI.

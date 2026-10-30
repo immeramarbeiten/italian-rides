@@ -1,5 +1,6 @@
 import { VESPA_PARTS, type VespaPartId } from "./vespa-inspect";
 import { CATALOG_PARTS } from "./vespa-parts";
+import type { SamOverlay } from "./sam-parse";
 
 export type SessionStatus = "uploaded" | "matched" | "selected" | "mapped";
 
@@ -35,6 +36,8 @@ export type InspectionSession = {
   matchMs: number;
   /** Present when the vision model answered; absent on fallback or old sessions. */
   ai?: AiResult | null;
+  /** SAM outline the user drew; absent until first outline. */
+  sam?: SamOverlay | null;
 };
 
 const KEY = "italian-rides-inspections";
@@ -120,9 +123,15 @@ export function suggestFromName(fileName: string): VespaPartId[] {
   return hits.sort((a, b) => b.score - a.score).map((h) => h.id);
 }
 
+/** Model-reported confidence as a neutral band, never a precise percent. */
+export function confidenceBand(c: number): "high" | "medium" | "low" {
+  return c >= 0.85 ? "high" : c >= 0.6 ? "medium" : "low";
+}
+
 /**
- * Validate the /api/inspect payload. Unknown component ids are dropped;
- * null means the shape was unusable and the caller must fall back.
+ * Validate the /api/inspect payload. Unknown component ids are dropped.
+ * An empty list is a valid no-match; null means the shape was unusable
+ * and the caller must fall back.
  */
 export function parseAiResult(raw: unknown, model: string): AiResult | null {
   if (typeof raw !== "object" || raw === null) return null;
@@ -145,7 +154,6 @@ export function parseAiResult(raw: unknown, model: string): AiResult | null {
       condition: typeof o.condition === "string" ? o.condition : "",
     });
   }
-  if (components.length === 0) return null;
   components.sort((a, b) => b.confidence - a.confidence);
   return {
     model,

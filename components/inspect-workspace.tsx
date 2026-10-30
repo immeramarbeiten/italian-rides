@@ -7,13 +7,16 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { VESPA_PARTS, type VespaPartId } from "@/lib/vespa-inspect";
 import { COMPONENT_INFO } from "@/lib/component-info";
 import { ARCHIVE_MODELS } from "@/lib/models";
+import { BOUNDED_ACTIONS } from "@/lib/bounded-actions";
 import { FAMILIES } from "@/lib/vespa-families";
 import {
+  confidenceBand,
   getSession,
   saveSession,
   type InspectionSession,
   type SessionStatus,
 } from "@/lib/inspect-session";
+import { SamOutliner } from "@/components/sam-outliner";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -80,6 +83,7 @@ export function InspectWorkspace() {
     )?.slug;
   const mapped = session.status === "mapped";
   const ai = session.ai ?? null;
+  const action = selected ? (BOUNDED_ACTIONS[selected.id] ?? null) : null;
 
   function select(id: VespaPartId | null) {
     setUnidentified(false);
@@ -115,16 +119,15 @@ export function InspectWorkspace() {
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1.65fr_1fr]">
         <div className="min-w-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={session.imageDataUrl}
-            alt={`Uploaded scooter photograph: ${session.fileName}`}
-            className="max-h-[70vh] w-full border border-line bg-zinc-100 object-contain"
+          <SamOutliner
+            imageDataUrl={session.imageDataUrl}
+            fileName={session.fileName}
+            hints={(ai?.components ?? [])
+              .slice(0, 3)
+              .map((c) => ({ id: c.id, label: c.label }))}
+            initial={session.sam ?? null}
+            onSave={(sam) => update({ sam })}
           />
-          <p className="mt-2 font-mono text-[11px] text-zinc-500">
-            ORIGINAL PHOTO — NO OVERLAYS. IDENTIFY BY SIGHT, THEN CONFIRM
-            BELOW.
-          </p>
         </div>
 
         <div className="min-w-0">
@@ -151,11 +154,9 @@ export function InspectWorkspace() {
                 {VESPA_PARTS.map((p) => {
                   const active = session.selectedPart === p.id;
                   const hinted = session.hintPartIds.includes(p.id);
-                  const aiConf = ai
-                    ? Math.round(
-                        (ai.components.find((c) => c.id === p.id)?.confidence ?? 0) * 100,
-                      )
-                    : 0;
+                  const partConf = ai?.components.find(
+                    (c) => c.id === p.id,
+                  )?.confidence;
                   return (
                     <li key={p.id}>
                       <button
@@ -182,7 +183,9 @@ export function InspectWorkspace() {
                             {p.label}
                             {hinted && (
                               <span className="ml-2 font-mono text-[10px] text-zinc-500">
-                                {aiConf > 0 ? `AI · ${aiConf}%` : "filename hint"}
+                                {partConf !== undefined
+                                  ? `AI · ${confidenceBand(partConf)}`
+                                  : "filename hint"}
                               </span>
                             )}
                           </span>
@@ -240,6 +243,24 @@ export function InspectWorkspace() {
                 <p className="mt-1 text-sm text-zinc-600">
                   {COMPONENT_INFO[selected.id].function.split(". ")[0]}.
                 </p>
+                {action && (
+                  <div className="mt-4 border border-line bg-parchment p-4">
+                    <p className="font-mono text-[11px] tracking-[0.08em] text-zinc-600">
+                      {action.mode === "owner-check"
+                        ? "OWNER CHECK"
+                        : "NOTE + MECHANIC REFERRAL"}
+                    </p>
+                    <p className="font-grotesk mt-1 font-bold">{action.title}</p>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-700">
+                      {action.lines.map((l) => (
+                        <li key={l}>{l}</li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 border-t border-line pt-2 font-mono text-[11px] text-zinc-500">
+                      SOURCE: {action.source}
+                    </p>
+                  </div>
+                )}
                 <div className="mt-4 space-y-2">
                   {slug ? (
                     <Link
@@ -264,7 +285,7 @@ export function InspectWorkspace() {
                     Explore repair information
                   </Link>
                   <Link
-                    href="/garage"
+                    href={`/garage?from=${session.id}`}
                     className={cn(buttonVariants({ variant: "ghost" }), "w-full")}
                   >
                     Record in My Garage
@@ -299,7 +320,11 @@ export function InspectWorkspace() {
               )}
               <div className="flex justify-between gap-4">
                 <dt>Segmentation</dt>
-                <dd className="text-right">unavailable — selection is manual</dd>
+                <dd className="text-right">
+                  {session.sam
+                    ? `SAM 3.1 · ${session.sam.matches.length} mask${session.sam.matches.length === 1 ? "" : "s"} · side ${session.sam.side || "?"}`
+                    : "tap the photo to outline"}
+                </dd>
               </div>
               <div className="flex justify-between gap-4">
                 <dt>Prepare time</dt>

@@ -13,6 +13,21 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
 - Inspect calls Muse Spark vision via /api/inspect (components + confidence + manual confirm; EXIF stripped, photo sent for ID but never stored); filename-hint fallback when unreachable. Methodology page documents it.
 - Still unverified in a real browser (sandbox EPERM on sockets). Still open: SCOPE CALL, GLB export, real clubs/fitment data, video, judges README.
 
+## Oct 30 — Hero lane shipped (friend-pack P0–P10, mirror + front-tyre)
+
+- `/api/sam` (SAM 3.1, point + phrase) live-verified e2e; tap-to-outline in
+  `sam-outliner.tsx`; visual after Commons study refs, Muse-Image fixtures.
+- Inspect: confidence bands (not raw %), consent gate, L/R side confirm,
+  family/engine/year selectors + plausibility warning, detail-crop samples.
+- Bounded actions only: mirror owner-note + mechanic handoff, front-tyre
+  owner-manual check — no part numbers, torque, or fitment verdicts.
+- Garage prefill drafts from sessions; saveSession returns boolean + retry.
+- Hotspot reference redrawn as clean line-art sheet (ScooterStage); trace SVG deleted.
+- P9 mini-eval: 5-photo scripted journey checklist in P10 runbook (below).
+  Held-out set + human ground truth still needed before any accuracy claim.
+- P10: DEMO_SCRIPT re-cut to hero lane, LICENSE (MIT) added. Recording,
+  public flip, deploy env, credits arrival still with the user (no browser in sandbox).
+
 ## Done
 
 - [x] Scaffold: Next.js app router, TS, Tailwind, R3F, drei, motion, zustand, shadcn-style `components/ui`

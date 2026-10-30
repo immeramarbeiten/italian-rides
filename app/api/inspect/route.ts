@@ -5,6 +5,7 @@
  * answers an honest 503 — it never fakes a result.
  */
 import { NextResponse } from "next/server";
+import { clientKey, rateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -36,6 +37,13 @@ export async function POST(req: Request) {
         hint: "Add META_API_KEY to .env.local (see .env.example).",
       },
       { status: 503 },
+    );
+  }
+
+  if (rateLimited(clientKey(req, "inspect"))) {
+    return NextResponse.json(
+      { error: "Too many requests — slow down for a minute." },
+      { status: 429 },
     );
   }
 

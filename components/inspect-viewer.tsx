@@ -25,10 +25,11 @@ export function InspectViewer() {
   const [probing, setProbing] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Preselect a hotspot from ?part=<id> links (e.g. from /parts).
+  // Preselect a hotspot from ?component=<id> or ?part=<id> links.
   // Read via window.location so prerendering stays fully static.
   useEffect(() => {
-    const part = new URLSearchParams(window.location.search).get("part");
+    const q = new URLSearchParams(window.location.search);
+    const part = q.get("component") ?? q.get("part");
     if (part && VESPA_PARTS.some((p) => p.id === part)) {
       setSelected(part as VespaPartId);
       setExplode((e) => (e === 0 ? 0.35 : e));

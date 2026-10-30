@@ -32,32 +32,50 @@ export function ScooterStage({
       role="img"
       aria-label="Simplified Vespa side profile with fuel system highlighted"
     >
-      {/* wheels */}
-      <circle cx="62" cy="150" r="24" fill="none" stroke="currentColor" strokeWidth="3" className={line} />
-      <circle cx="250" cy="150" r="24" fill="none" stroke="currentColor" strokeWidth="3" className={line} />
-      {/* Vespa profile, facing left: fender, legshield, column, headset,
-          step-through floor, rear cowl, tail. Schematic, not to scale. */}
-      <g fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={line}>
-        {/* front fender hugging the wheel */}
-        <path d="M36 148 C37 126 48 116 62 116 C76 116 87 126 88 148" />
-        {/* legshield sweeping up from the wheel */}
-        <path d="M44 146 C42 108 54 82 80 70" />
-        {/* steering column + headlamp + handlebar */}
-        <path d="M80 70 L88 36" />
-        <circle cx="88" cy="50" r="6" />
-        <path d="M70 38 Q88 33 106 38" />
-        {/* step-through floor + stand */}
-        <path d="M96 142 L198 142" />
-        <path d="M150 142 L150 160" />
-        {/* rear body rising to meet the seat */}
-        <path d="M198 142 C200 112 212 92 230 84" />
-        {/* side cowl falling behind the rear wheel */}
-        <path d="M270 80 C282 90 286 110 284 130 C283 138 282 142 280 146" />
-        {/* tail tick */}
-        <path d="M283 116 L290 116" />
+      {/* wheels with hubs */}
+      <circle cx="62" cy="150" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" className={line} />
+      <circle cx="250" cy="150" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" className={line} />
+      <circle cx="62" cy="150" r="5" fill="none" stroke="currentColor" strokeWidth="2" className={line} />
+      <circle cx="250" cy="150" r="5" fill="none" stroke="currentColor" strokeWidth="2" className={line} />
+      {/* Vespa profile, facing left. Schematic, not to scale. */}
+      <g fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className={line}>
+        {/* front fork + fender */}
+        <path d="M64 148 L78 118" />
+        <path d="M32 150 C32 122 45 110 62 110 C79 110 92 122 92 150" />
+        {/* legshield: outer sweep + inner edge */}
+        <path d="M36 140 C35 110 50 80 78 60 C86 54 92 52 97 52" />
+        <path d="M48 134 C46 110 58 84 82 68" />
+        {/* steering column + headlamp + handlebar + mirror */}
+        <path d="M97 54 L101 32" />
+        <circle cx="101" cy="45" r="7" />
+        <path d="M83 33 Q101 28 119 33" />
+        <path d="M113 32 L123 19" />
+        <ellipse cx="127" cy="16" rx="7" ry="4.5" />
+        {/* step-through floor + rails + stand */}
+        <path d="M100 142 L198 142" />
+        <path d="M100 147 L198 147" />
+        <path d="M150 142 L150 162" />
+        <path d="M150 162 L157 162" />
+        {/* rear body + side cowl */}
+        <path d="M198 142 C200 118 208 100 220 90" />
+        <path d="M268 84 C280 92 286 108 285 124 C284 136 282 142 280 146" />
+        <path d="M282 146 C260 149 230 149 205 145" />
       </g>
-      {/* seat */}
-      <path d="M205 84 Q236 76 270 83 L268 92 Q238 86 207 92 Z" fill="currentColor" className={dim} />
+      <g fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" className={line}>
+        {/* horn vent + indicator */}
+        <path d="M69 102 L78 100" />
+        <path d="M68 108 L77 106" />
+        <path d="M67 114 L76 112" />
+        <ellipse cx="90" cy="94" rx="3" ry="5" />
+        {/* cowl vents + tail lamp */}
+        <path d="M240 106 L250 106" />
+        <path d="M239 112 L249 112" />
+        <path d="M238 118 L248 118" />
+        <rect x="281" y="96" width="5" height="12" rx="2" />
+      </g>
+      {/* seat with stitch line */}
+      <path d="M205 84 C225 78 250 76 270 81 L268 90 C248 86 226 87 207 92 Z" fill="currentColor" className={dim} />
+      <path d="M210 86 C230 82 250 81 264 84" fill="none" stroke="currentColor" strokeWidth="1" className={line} />
       {/* fuel path: tank → pump → carb/injector → engine */}
       {showSystem && (
       <g>

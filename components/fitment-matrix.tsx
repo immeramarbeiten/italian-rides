@@ -24,6 +24,10 @@ export function FitmentMatrix() {
 
   return (
     <div>
+      <p className="mb-3 border border-amber-500 bg-amber-50 px-4 py-2 font-mono text-xs text-amber-900">
+        UNVERIFIED DATA — PATTERNS ONLY, NOT FITMENT CLAIMS. CONFIRM EVERY PART
+        AGAINST YOUR MANUAL.
+      </p>
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Choose a part row">
         {CATALOG_PARTS.map((p) => {
           const label = VESPA_PARTS.find((v) => v.id === p.id)?.label ?? p.id;
@@ -141,10 +145,11 @@ export function FitmentMatrix() {
         </table>
       </div>
       <p className="mt-2 text-sm text-zinc-600">
-        Legend: <span className="text-verde">●</span> fits,{" "}
-        <span className="text-ambra">◐</span> adapts with work,{" "}
-        <span className="text-stone-400">○</span> no fit. Illustrative guide —
-        confirm against your frame number and parts book.
+        Legend: <span className="text-verde">●</span> likely fits*,{" "}
+        <span className="text-ambra">◐</span> adapts with work*,{" "}
+        <span className="text-stone-400">○</span> no fit*. *Unverified
+        pattern — nothing here is a confirmed fitment claim. Confirm against
+        your frame number and parts book.
       </p>
     </div>
   );

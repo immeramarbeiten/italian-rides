@@ -10,6 +10,7 @@ import {
 } from "@/lib/vespa-families";
 import type { VespaPartId } from "@/lib/vespa-inspect";
 import {
+  confidenceBand,
   downscaleImage,
   newSessionId,
   parseAiResult,
@@ -34,6 +35,8 @@ const FIXTURES = [
   { label: "Dented cowl", url: "/fixtures/damage-dented-cowl.png", name: "fixture-dented-cowl.png" },
   { label: "Scored disc", url: "/fixtures/damage-scored-disc.png", name: "fixture-scored-disc.png" },
   { label: "Corroded battery", url: "/fixtures/damage-corroded-battery.png", name: "fixture-corroded-battery.png" },
+  { label: "Mirror · healthy", url: "/fixtures/healthy-mirror.png", name: "fixture-healthy-mirror.png" },
+  { label: "Front tyre · healthy", url: "/fixtures/healthy-tyre.png", name: "fixture-healthy-tyre.png" },
 ];
 
 const MAX_BYTES = 15 * 1024 * 1024;
@@ -130,21 +133,25 @@ export function PhotoUploader({
       const img = await downscaleImage(blob);
       const found = await identify(img.dataUrl);
       const ai = found !== null && found !== "unavailable" ? found : null;
-      const hints: VespaPartId[] = ai
-        ? ai.components.map((c) => c.id as VespaPartId)
-        : suggestFromName(fileName);
+      const hints: VespaPartId[] =
+        ai && ai.components.length > 0
+          ? ai.components.map((c) => c.id as VespaPartId)
+          : suggestFromName(fileName);
       const seen = ai
         ? ai.components
             .slice(0, 3)
-            .map((c) => `${c.label} ${Math.round(c.confidence * 100)}%`)
+            .map((c) => `${c.label} (${confidenceBand(c.confidence)})`)
             .join(", ")
         : "";
       const fullView = ai !== null && ai.components.length >= 5;
-      const matchNote = ai
-        ? `${fullView ? "Full view — everything visible; " : ""}AI (${ai.model}) sees ${seen} — confirm visually.${ai.modelGuess ? ` Model guess: ${ai.modelGuess}.` : ""}`
-        : found === "unavailable"
-          ? `AI unavailable (API key missing) — ${hints.length > 0 ? "filename hints only" : "no filename hints"} — confirm visually.`
-          : `AI call failed — ${hints.length > 0 ? "filename hints only" : "no filename hints"} — confirm visually.`;
+      const matchNote =
+        ai && ai.components.length > 0
+          ? `${fullView ? "Full view — everything visible; " : ""}AI (${ai.model}) sees ${seen} — confirm visually.${ai.modelGuess ? ` Model guess: ${ai.modelGuess}.` : ""}`
+          : ai
+            ? "AI found no recognizable component — filename hints only — confirm visually."
+            : found === "unavailable"
+              ? `AI unavailable (API key missing) — ${hints.length > 0 ? "filename hints only" : "no filename hints"} — confirm visually.`
+              : `AI call failed — ${hints.length > 0 ? "filename hints only" : "no filename hints"} — confirm visually.`;
       const session: InspectionSession = {
         id: newSessionId(),
         createdAt: new Date().toISOString(),
@@ -303,7 +310,7 @@ export function PhotoUploader({
 
       <div className="mt-4">
         <p className="font-mono text-[11px] tracking-[0.1em] text-zinc-600">
-          OR TEST WITH AN AI-GENERATED DAMAGE FIXTURE
+          OR TEST WITH AN AI-GENERATED FIXTURE
         </p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {FIXTURES.map((s) => (
