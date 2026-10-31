@@ -3,6 +3,7 @@ import { CATALOG_PARTS } from "./vespa-parts";
 import type { SamOverlay } from "./sam-parse";
 import type { SubId } from "./guided-inspect";
 import type { GtsPilotId } from "./gts-pilot";
+import { boundedSave, type SaveResult } from "./session-store";
 
 export type SessionStatus = "uploaded" | "matched" | "selected" | "mapped";
 
@@ -51,6 +52,7 @@ export type InspectionSession = {
 };
 
 const KEY = "italian-rides-inspections";
+const NOTICE_KEY = "italian-rides-inspections-evicted";
 
 function readAll(): InspectionSession[] {
   try {
@@ -66,19 +68,52 @@ export function getSession(id: string): InspectionSession | null {
 }
 
 /**
- * Persist a session. Returns false when the browser refused storage —
- * callers must not navigate on false or the workspace shows "not found".
- * Never discards other sessions to make room: on quota errors the caller
- * tells the user to free space. The 12-session cap below is the only
- * eviction, keeping the cache bounded.
+ * Persist a session. When quota forces out older sessions, they go
+ * oldest-first and the count is left in NOTICE_KEY for the workspace
+ * banner — eviction is always reported, never silent. Callers must not
+ * navigate on ok:false or the workspace shows "not found".
  */
-export function saveSession(s: InspectionSession): boolean {
+export function saveSession(s: InspectionSession): SaveResult {
+  let result: SaveResult;
   try {
-    const rest = readAll().filter((x) => x.id !== s.id);
-    localStorage.setItem(KEY, JSON.stringify([s, ...rest].slice(0, 12)));
+    result = boundedSave(readAll(), s, 12, (raw) =>
+      localStorage.setItem(KEY, raw),
+    );
+  } catch {
+    return { ok: false, evicted: 0 };
+  }
+  if (result.ok && result.evicted > 0) {
+    try {
+      const prev = Number(localStorage.getItem(NOTICE_KEY) ?? 0) || 0;
+      localStorage.setItem(NOTICE_KEY, String(prev + result.evicted));
+    } catch {
+      /* notice is best-effort; the save itself succeeded */
+    }
+  }
+  return result;
+}
+
+/** Delete all stored inspections. Only call after explicit user consent. */
+export function clearInspections(): boolean {
+  try {
+    if (typeof window === "undefined") return false;
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(NOTICE_KEY);
     return true;
   } catch {
     return false;
+  }
+}
+
+/** Read and clear the pending eviction notice count. */
+export function takeEvictionNotice(): number {
+  try {
+    if (typeof window === "undefined") return 0;
+    const n = Number(localStorage.getItem(NOTICE_KEY) ?? 0) || 0;
+    if (n > 0) localStorage.removeItem(NOTICE_KEY);
+    return n;
+  } catch {
+    return 0;
   }
 }
 

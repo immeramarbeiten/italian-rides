@@ -10,6 +10,7 @@ import {
 } from "@/lib/vespa-families";
 import type { VespaPartId } from "@/lib/vespa-inspect";
 import {
+  clearInspections,
   confidenceBand,
   downscaleImage,
   newSessionId,
@@ -31,13 +32,13 @@ const SAMPLES = [
 
 const FIXTURES = [
   { label: "Rusty exhaust", url: "/fixtures/damage-rusty-exhaust.png", name: "fixture-rusty-exhaust.png" },
-  { label: "Cracked mirror", url: "/fixtures/damage-cracked-mirror.png", name: "fixture-cracked-mirror.png" },
-  { label: "Worn tire", url: "/fixtures/damage-worn-tire.png", name: "fixture-worn-tire.png" },
+  { label: "Mirror · simulated crack", url: "/fixtures/ai-gts-mirror-cracked-simulated-v2.png", name: "ai-fixture-mirror-cracked-simulated.png" },
+  { label: "Front tyre · simulated wear", url: "/fixtures/ai-gts-front-tyre-worn-simulated-v2.png", name: "ai-fixture-front-tyre-worn-simulated.png" },
   { label: "Dented cowl", url: "/fixtures/damage-dented-cowl.png", name: "fixture-dented-cowl.png" },
   { label: "Scored disc", url: "/fixtures/damage-scored-disc.png", name: "fixture-scored-disc.png" },
   { label: "Corroded battery", url: "/fixtures/damage-corroded-battery.png", name: "fixture-corroded-battery.png" },
-  { label: "Mirror · healthy", url: "/fixtures/healthy-mirror.png", name: "fixture-healthy-mirror.png" },
-  { label: "Front tyre · healthy", url: "/fixtures/healthy-tyre.png", name: "fixture-healthy-tyre.png" },
+  { label: "Mirror · no visible damage", url: "/fixtures/healthy-mirror.png", name: "fixture-healthy-mirror.png" },
+  { label: "Front tyre · no visible damage", url: "/fixtures/healthy-tyre.png", name: "fixture-healthy-tyre.png" },
 ];
 
 const MAX_BYTES = 15 * 1024 * 1024;
@@ -66,6 +67,7 @@ export function PhotoUploader({
   const [concern, setConcern] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
+  const [storageBlocked, setStorageBlocked] = useState(false);
 
   const engines = engineOptions(model);
   const yearWarning = model || year ? plausibilityWarning(model, year) : null;
@@ -124,7 +126,19 @@ export function PhotoUploader({
     }
   }
 
-  async function inspect() {
+  async function clearAndRetry() {
+    setStorageBlocked(false);
+    setError(null);
+    if (!clearInspections()) {
+      setError(
+        "Storage is blocked in this browser (private window or site settings) — allow it and retry.",
+      );
+      return;
+    }
+    await inspect(true);
+  }
+
+  async function inspect(retried = false) {
     if (!preview) return;
     setWorking(true);
     setError(null);
@@ -173,10 +187,18 @@ export function PhotoUploader({
         ai,
         ...(concernText ? { concern: concernText } : {}),
       };
-      if (!saveSession(session)) {
-        setError(
-          "This browser refused to store the inspection (storage full or blocked) — free some space and retry.",
-        );
+      const saved = saveSession(session);
+      if (!saved.ok) {
+        if (retried) {
+          setError(
+            "Still blocked after clearing — check for a private window or site storage settings, then retry.",
+          );
+        } else {
+          setStorageBlocked(true);
+          setError(
+            "This browser refused to store the inspection (storage full or blocked) — free some space and retry.",
+          );
+        }
         setWorking(false);
         return;
       }
@@ -317,6 +339,7 @@ export function PhotoUploader({
         <p className="font-mono text-[11px] tracking-[0.1em] text-zinc-600">
           OR TEST WITH AN AI-GENERATED FIXTURE
         </p>
+        <p className="mt-1 text-xs text-zinc-600">Simulated examples: details and damage are invented, and do not establish a component’s condition or exact vehicle fit.</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {FIXTURES.map((s) => (
             <button
@@ -334,7 +357,7 @@ export function PhotoUploader({
                 src={s.url}
                 alt=""
                 loading="lazy"
-                className="aspect-[4/3] w-full object-cover"
+                className="aspect-[4/3] w-full bg-zinc-100 object-contain"
               />
               <span className="block px-2 py-1.5 text-xs font-medium">
                 {s.label}
@@ -441,9 +464,21 @@ export function PhotoUploader({
           {error}
         </p>
       )}
+      {storageBlocked && (
+        <button
+          type="button"
+          onClick={() => void clearAndRetry()}
+          className="mt-2 border border-ink bg-white px-4 py-2 font-mono text-xs hover:bg-zinc-100"
+        >
+          Delete stored inspections and retry
+        </button>
+      )}
       <button
         type="button"
-        onClick={inspect}
+        onClick={() => {
+          setStorageBlocked(false);
+          void inspect();
+        }}
         disabled={!preview || working}
         className={cn(buttonVariants({ size: "lg" }), "mt-5 w-full sm:w-auto")}
       >

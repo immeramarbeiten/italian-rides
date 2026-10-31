@@ -18,6 +18,7 @@ import {
   confidenceBand,
   getSession,
   saveSession,
+  takeEvictionNotice,
   type InspectionSession,
   type SessionStatus,
 } from "@/lib/inspect-session";
@@ -41,9 +42,11 @@ export function InspectWorkspace() {
   const [session, setSession] = useState<InspectionSession | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [unidentified, setUnidentified] = useState(false);
+  const [evicted, setEvicted] = useState(0);
 
   useEffect(() => {
     setSession(getSession(params.sessionId));
+    setEvicted(takeEvictionNotice());
     setLoaded(true);
   }, [params.sessionId]);
 
@@ -134,6 +137,16 @@ export function InspectWorkspace() {
           </Link>
         </span>
       </div>
+
+      {evicted > 0 && (
+        <p
+          role="note"
+          className="mt-3 border border-amber-500 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+        >
+          Storage was full — removed {evicted} oldest inspection
+          {evicted === 1 ? "" : "s"} to save this one.
+        </p>
+      )}
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1.65fr_1fr]">
         <div className="min-w-0">
