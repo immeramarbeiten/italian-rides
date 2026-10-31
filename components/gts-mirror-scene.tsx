@@ -179,20 +179,25 @@ function SteeringNeck() {
   </group>;
 }
 
-function Assembly({ side }: { side: "left" | "right" }) {
+function Assembly({ side, explode }: { side: "left" | "right"; explode: number }) {
   const housing = useMemo(makeHousing, []);
   return <group>
     <mesh name="handlebar-housing" geometry={housing}><meshPhysicalMaterial color="#d9dad4" metalness={.38} roughness={.26} clearcoat={.75} clearcoatRoughness={.24}/></mesh>
     <mesh name="lower-headset-trim" position={[0,-.12,-.03]} scale={[.83,.14,.27]}><sphereGeometry args={[1,64,32]}/><meshStandardMaterial color="#747a77" metalness={.54} roughness={.36}/></mesh>
-    <SteeringNeck/><InstrumentPanel/><Headlamp/><Control side="left"/><Control side="right"/>
-    <Mirror side="left" selected={side === "left"}/><Mirror side="right" selected={side === "right"}/>
+    <SteeringNeck/>
+    <group name="exploded-instruments" position={[0, explode * .55, -explode * .10]}><InstrumentPanel/></group>
+    <group name="exploded-headlamp" position={[0, -explode * .25, explode * .65]}><Headlamp/></group>
+    <group name="exploded-left-control" position={[-explode * .42, 0, 0]}><Control side="left"/></group>
+    <group name="exploded-right-control" position={[explode * .42, 0, 0]}><Control side="right"/></group>
+    <group name="exploded-left-mirror" position={[-explode * .18, explode * .36, 0]}><Mirror side="left" selected={side === "left"}/></group>
+    <group name="exploded-right-mirror" position={[explode * .18, explode * .36, 0]}><Mirror side="right" selected={side === "right"}/></group>
   </group>;
 }
 
-export default function GtsMirrorScene({ componentId, view = "overview" }: { componentId: GtsPilotId; view?: "overview" | "dashboard" }) {
+export default function GtsMirrorScene({ componentId, view = "overview", explode = 0 }: { componentId: GtsPilotId; view?: "overview" | "dashboard"; explode?: number }) {
   const side = componentId === "gts125-mirror-left" ? "left" : "right";
   return <div className="h-[420px] w-full bg-zinc-100" aria-label={`Interactive illustrative ${side} mirror and handlebar model`}>
-    <Canvas key={view} camera={{position: view === "dashboard" ? [0,1.72,-1.5] : [2.1,1.65,4.7],fov: view === "dashboard" ? 30 : 34}} dpr={[1,1.5]}>
+    <Canvas key={view} camera={{position: view === "dashboard" ? [0,1.72,-1.5] : [2.7,1.85,5.7],fov: view === "dashboard" ? 30 : 34}} dpr={[1,1.5]}>
       <color attach="background" args={["#f0f0ee"]}/>
       <ambientLight intensity={.45}/><directionalLight position={[3,6,5]} intensity={2}/><directionalLight position={[-4,3,-1]} intensity={.7}/>
       <Environment resolution={128}>
@@ -200,7 +205,7 @@ export default function GtsMirrorScene({ componentId, view = "overview" }: { com
         <Lightformer form="rect" intensity={3} position={[-4,2,2]} rotation={[0,Math.PI/2,0]} scale={[5,3,1]}/>
         <Lightformer form="rect" intensity={2} position={[4,3,-1]} rotation={[0,-Math.PI/2,0]} scale={[5,2,1]}/>
       </Environment>
-      <Assembly side={side}/><ContactShadows position={[0,-.80,0]} opacity={.22} scale={7} blur={2.8}/>
+      <Assembly side={side} explode={explode}/><ContactShadows position={[0,-.80,0]} opacity={.22} scale={7} blur={2.8}/>
       <OrbitControls target={view === "dashboard" ? [0,.20,-.03] : [0,.22,0]} enablePan={false} minDistance={view === "dashboard" ? 1.2 : 2.8} maxDistance={8}/>
     </Canvas>
   </div>;

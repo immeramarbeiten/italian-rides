@@ -94,6 +94,24 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
   cases (2 demo lanes, 6 corrections/failures, 5 robustness).
 - Also committed peer's 3D instrument-view work after review + green build.
 
+## Oct 31 (win plan) — Agent trace + voice + mechanic-first positioning
+
+- User: as-is won't win. Agreed: analyzer-adjacent, 2 conventional models,
+  no agent/voice/open-weights. Plan funded minus Baseten (user-skipped, so
+  no open-weights bonus shot; Modal noted as fallback).
+- Agent: client runner look→focus→outline→zoom→conclude over existing
+  routes (≤4 calls), visible trace UI with send-consent, ends in manual
+  select. Decisions in lib/agent-decide.ts (7 tests); runner covered by
+  LIVE_TEST case 14.
+- Voice: /api/transcribe (WAV multipart → muse-voice-transcribe-1.0,
+  PUSH_TO_TALK + scooter keywords), mic button with in-browser 16k mono
+  WAV encode. Live-verified: 400 on garbage, 200 + real transcript on
+  1.2s Commons speech ("cassette mirror" for labeled "gossip mirror" —
+  short-clip mis-hear, correctable in the editable input by design).
+- Positioning: homepage hero flipped to mechanic-first ("Show it what's
+  wrong.", CTA → /inspect); README analyzer preemption + Speak/Agent
+  loop rows; demo 0:15 opens on voice + "earn a record" line.
+
 ## Done
 
 - [x] Scaffold: Next.js app router, TS, Tailwind, R3F, drei, motion, zustand, shadcn-style `components/ui`

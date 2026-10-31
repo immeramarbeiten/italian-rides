@@ -17,7 +17,7 @@
   <a href="#credits">Credits</a>
 </p>
 
-Point your camera at your Vespa and it identifies the component, outlines it on your photo, asks one guided question about the detail, and drafts the work onto your scooter's passport for you to confirm. Underneath sits a twelve-model archive — every story, spec, and procedure the mechanic reasons over.
+Point your camera at your Vespa and it identifies the component, outlines it on your photo, asks one guided question about the detail, and drafts the work onto your scooter's passport for you to confirm. Underneath sits a twelve-model archive — every story, spec, and procedure the mechanic reasons over. This is not an image analyzer: every suggestion must survive your confirmation, and lands — if at all — as a record you signed.
 
 Built for the Meta AI Developer Hackathon, Oct 27 – Nov 4 2026. Every commit here is hackathon work. Demo video lands before the deadline.
 
@@ -41,6 +41,8 @@ The key lives server-side only (`app/api/*`); the browser never sees it.
 | Step | What happens | Status |
 | ---- | ------------ | ------ |
 | See it | Photo + your words → ranked components, you confirm | live |
+| Speak it | Push-to-talk concern via Muse Voice Transcribe | live |
+| Agent | Look → focus → outline → zoom with a visible trace; still your confirm | live |
 | Outline it | Live SAM 3.1 mask over your photo, after consent | live |
 | Narrow it | One guided question → prepared mirror/tyre sub-detail | live |
 | Fix it | Two bounded checks (mirror note, tyre check); generic guides are PX-only | live |

@@ -23,7 +23,7 @@ once, on screen and in narration. Anything outside it is labelled unverified.
 | Time | Screen | Action + line |
 | ---- | ------ | ------------- |
 | 0:00 | `/` Home | Hero + frieze. "Eighty years of the wasp — and now it helps keep yours running." |
-| 0:15 | `/inspect` | Type "my mirror is loose", sample mirror photo loads. "Tell it what's wrong, show it the scooter. Words plus photo go to Meta's models." |
+| 0:15 | `/inspect` | Speak "my mirror is loose" into the mic, sample mirror photo loads. "Say what's wrong, show the scooter. Analyzers label pixels — this one has to earn a record." |
 | 0:35 | workspace | Tap the mirror (consent first). Real SAM mask draws. "Tap the part. That outline is SAM 3.1, live — not a sticker." |
 | 0:55 | workspace | Ranked list suggests Handlebar; pilot panel offers Left/Right mirror. Confirm left. "Spark ranks, you confirm. Left or right is yours to settle." |
 | 1:15 | reference | "See the reference study": photo cutout becomes the generated GTS reference, mirror layer isolated. "Your photo becomes the reference — a study, not a reconstruction." |

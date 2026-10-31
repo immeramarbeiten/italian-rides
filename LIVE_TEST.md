@@ -58,6 +58,13 @@ Setup: `npm run dev`, open http://localhost:3000, console open and clean,
 - [ ] **12. Narrow viewport.** Repeat case 1 at phone width (~390px).
   Expect: usable, no overlapping controls, console clean.
 - [ ] **13. Console.** After all cases: no errors (warnings noted).
+- [ ] **14. Agent run.** Fresh mirror inspection, before selecting: Run the
+  agent → confirm the sends → watch look → focus → outline → zoom →
+  conclude → “Select Handlebar” → normal flow continues. Expect: at most
+  4 model calls, failures narrated not hidden, selection still manual.
+- [ ] **15. Voice concern.** On `/inspect`, mic → say “my mirror is
+  loose” → transcript fills the input (fix it by hand if mis-heard) →
+  inspect proceeds. Expect: works over localhost; needs mic permission.
 
 ## Sign-off
 

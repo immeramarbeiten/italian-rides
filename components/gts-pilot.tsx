@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import { GTS_PILOT_COMPONENTS, pilotScope, type GtsPilotId } from "@/lib/gts-pilot";
 import type { InspectionSession } from "@/lib/inspect-session";
-import GtsMirrorLazy from "./gts-mirror-lazy";
+import { GtsAssemblyExperience } from "./gts-assembly-experience";
 
 const base = "/gts125-visual-prototype/";
 const mirrorPath = "M 852 91 C 848 67 860 36 884 28 C 904 22 924 31 933 47 C 942 66 932 98 915 112 C 901 125 882 120 872 111 L 773 165 L 760 166 L 763 155 L 861 98 Z";
@@ -59,7 +59,7 @@ export function GtsPilot({ session, onConfirm }: { session: InspectionSession; o
         </div>
         <style>{`@keyframes gts-cutout {0%{opacity:1;transform:scale(1)} 65%{opacity:1;transform:scale(.8)} 100%{opacity:0;transform:scale(.72)}} @keyframes gts-reveal {0%,60%{opacity:0}100%{opacity:1}} .gts-photo-cutout{animation:gts-cutout 1.4s ease both;transform-origin:center}.gts-reference-part{animation:gts-reveal 1.4s ease both}@media(prefers-reduced-motion:reduce){.gts-photo-cutout{display:none}.gts-reference-part{animation:none}}`}</style>
         <p className="mt-2 text-xs text-zinc-500">Generated reference, not your scooter or a reconstruction. Component outlines and mechanical proportions are approximate; the image’s mirror side has not been verified.</p>
-        {mirror && <><button type="button" onClick={()=>setShow3d(!show3d)} aria-expanded={show3d} className="mt-3 border border-ink px-4 py-2 text-sm">{show3d?"Hide":"Explore"} 3D mirror study</button>{show3d && <div className="mt-3"><GtsMirrorLazy componentId={selection.componentId}/><p className="mt-1 text-xs text-zinc-500">Original procedural 3D study, not a measured GTS part. Drag to orbit; geometry and mounting are illustrative.</p></div>}</>}
+        {mirror && <><button type="button" onClick={()=>setShow3d(!show3d)} aria-expanded={show3d} className="mt-3 border border-ink px-4 py-2 text-sm">{show3d?"Hide":"Explore"} 3D mirror study</button>{show3d && <div className="mt-3"><GtsAssemblyExperience initialComponentId={selection.componentId}/></div>}</>}
         <div className="mt-4 border border-line p-4 text-sm"><h4 className="font-bold">What is documented?</h4>
           {mirror ? <p className="mt-2">The GTS 125 owner guide mentions mirror removal during headlamp access (PDF p. 54). The workshop manual lists a mirror-replacement operation (PDF p. 266); this is not a part number or a complete repair procedure. Exact scooter applicability and part fitment are unverified.</p> : <p className="mt-2">The GTS 125 owner guide describes cold tyre-pressure and wear checks (PDF pp. 24, 39–40) and refers tyre replacement to an equipped service provider (PDF p. 60). Use the vehicle manufacturer’s pressure for the exact scooter and load; the sidewall maximum is not a substitute. Vehicle applicability needs confirmation.</p>}
         </div>

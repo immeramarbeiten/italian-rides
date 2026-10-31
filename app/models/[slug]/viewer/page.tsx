@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { ARCHIVE_MODELS, modelBySlug } from "@/lib/models";
 import { VESPA_PARTS } from "@/lib/vespa-inspect";
 import { InspectViewer } from "@/components/inspect-viewer";
+import { GtsAssemblyExperience } from "@/components/gts-assembly-experience";
 
 export function generateStaticParams() {
   return ARCHIVE_MODELS.map((m) => ({ slug: m.slug }));
@@ -27,6 +28,17 @@ export default async function ModelViewerPage({
   const { slug } = await params;
   const m = modelBySlug(slug);
   if (!m) notFound();
+
+  if (slug === "vespa-gts-granturismo") return (
+    <div className="pt-10">
+      <Link href={`/models/${slug}`} className="inline-flex items-center gap-1.5 font-mono text-xs text-zinc-600 hover:underline"><ArrowLeft className="size-4" aria-hidden /> BACK TO MODEL</Link>
+      <p className="mt-6 font-mono text-xs text-zinc-500">GTS 125 · INTERACTIVE STUDY</p>
+      <h1 className="mt-2 text-3xl font-black tracking-tight">The front assembly</h1>
+      <p className="mb-6 mt-3 max-w-2xl text-zinc-600">Explore the mirrors, controls, headlamp and instrument panel. Separate the parts to see how the study is composed.</p>
+      <GtsAssemblyExperience />
+      <Link href="/inspect?model=Vespa%20GTS%2FGranturismo" className="mt-6 inline-block text-sm underline underline-offset-4">Explore a component in your photo →</Link>
+    </div>
+  );
 
   return (
     <div className="pt-10">

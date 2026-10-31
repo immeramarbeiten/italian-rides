@@ -24,6 +24,7 @@ import {
 import { SamOutliner } from "@/components/sam-outliner";
 import { GtsPilot } from "@/components/gts-pilot";
 import { GuidedDetail } from "@/components/guided-detail";
+import { AgentTrace } from "@/components/agent-trace";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -186,6 +187,11 @@ export function InspectWorkspace() {
 
           {!mapped ? (
             <>
+              <AgentTrace
+                imageDataUrl={session.imageDataUrl}
+                concern={session.concern ?? ""}
+                onSelect={(id) => select(id)}
+              />
               <h2 className="font-grotesk mt-5 text-lg font-bold">
                 What do you see?
               </h2>

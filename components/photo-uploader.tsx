@@ -20,6 +20,7 @@ import {
   type InspectionSession,
 } from "@/lib/inspect-session";
 import { buttonVariants } from "@/components/ui/button";
+import { VoiceConcern } from "@/components/voice-concern";
 import { cn } from "@/lib/utils";
 
 const SAMPLES = [
@@ -395,16 +396,22 @@ export function PhotoUploader({
         </label>
       </div>
 
-      <label className="mt-3 block text-sm">
-        <span className="font-medium">Something wrong? (optional)</span>
+      <div className="mt-3 text-sm">
+        <div className="flex items-center justify-between gap-2">
+          <label htmlFor="concern-input" className="font-medium">
+            Something wrong? (optional)
+          </label>
+          <VoiceConcern onTranscript={(t) => setConcern(t.slice(0, 200))} />
+        </div>
         <input
+          id="concern-input"
           value={concern}
           onChange={(e) => setConcern(e.target.value)}
-          placeholder="e.g. my mirror is loose"
+          placeholder="e.g. my mirror is loose — or say it"
           maxLength={200}
           className={`${inputCls} mt-1`}
         />
-      </label>
+      </div>
 
       {yearWarning && (
         <p
@@ -424,9 +431,9 @@ export function PhotoUploader({
         </ul>
       </div>
       <p className="mt-3 text-xs leading-relaxed text-zinc-600">
-        Photo and any words above go to the Meta Model API for
-        identification — EXIF-stripped. A copy stays in this browser only;
-        we cannot verify the provider&apos;s retention.
+        Photo, words, and any voice clip above go to the Meta Model API —
+        EXIF-stripped. A copy stays in this browser only; we cannot verify
+        the provider&apos;s retention.
       </p>
 
       {error && (

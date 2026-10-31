@@ -30,25 +30,26 @@ export default function HomePage() {
       <div className="grid items-start gap-10 pt-14 lg:grid-cols-[1fr_1.5fr]">
         <AnimateIn className="min-w-0">
           <p className="font-mono text-[11px] tracking-[0.14em] text-zinc-600">
-            THE ITALIAN RIDES ARCHIVE ·{" "}
-            <span className="whitespace-nowrap">1946—2018</span>
+            AN AI FIELD MECHANIC ·{" "}
+            <span className="whitespace-nowrap">BUILT ON META AI</span>
           </p>
           <h1 className="font-grotesk mt-4 max-w-md text-5xl leading-[1.02] font-black tracking-tight">
-            An archive for the machines we keep.
+            Show it what&apos;s wrong.
           </h1>
           <p className="mt-4 max-w-md leading-relaxed text-zinc-600">
-            Explore Vespa history, understand the parts, and find knowledge
-            for your own scooter. Explore the sources behind every record.
+            Photo plus your words in — the agent looks, outlines, and zooms,
+            then drafts the work to your scooter&apos;s passport. You confirm
+            every step; nothing saves itself.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-5">
-            <Link href="/timeline" className={buttonVariants({ size: "lg" })}>
-              Explore the archive <ArrowRight />
+            <Link href="/inspect" className={buttonVariants({ size: "lg" })}>
+              Inspect your scooter <ArrowRight />
             </Link>
             <Link
-              href="/inspect"
+              href="/timeline"
               className="font-medium underline-offset-4 hover:text-rosso hover:underline"
             >
-              Understand your scooter →
+              Or explore the archive →
             </Link>
           </div>
         </AnimateIn>
