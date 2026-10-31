@@ -1,0 +1,1 @@
+Tap the part and a live outline draws itself around it. Missed? Tap again — the app would rather show you an honest empty state than a confident fake. Every mask you see is computed, never drawn on.

@@ -31,3 +31,10 @@ yarn-error.log*
 public/models/vespa.glb
 design/vespa-museum-study.glb
 design/vespa-museum-study.png
+
+# video working files — pipeline is committed, artifacts stay local
+video/.venv/
+video/assets/
+video/clips/
+video/*.mp4
+video/*.wav

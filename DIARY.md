@@ -111,6 +111,14 @@ Visual version: open [diary.html](./diary.html) in a browser (checkboxes persist
 - Positioning: homepage hero flipped to mechanic-first ("Show it what's
   wrong.", CTA → /inspect); README analyzer preemption + Speak/Agent
   loop rows; demo 0:15 opens on voice + "earn a record" line.
+- Storage: user hit quota live; shipped boundedSave (evict-oldest with
+  banner) + explicit clear-and-retry; hydration fix for VoiceConcern.
+- Video draft (video/): 10-scene storyboard + 248-word narration in
+  VIDEO_PLAN.md; film.py/bed.py render a real 3:03 1080p MP4 (cards +
+  slates + Piper scratch voice + synth ambient bed, ducked). No Remotion:
+  sandbox has no ffmpeg/Chrome to spare, so Pillow + imageio-ffmpeg
+  (static binary) does cards and assembly deterministically; screen slots
+  swap in via --clips for the final. Only code/docs committed.
 
 ## Done
 
