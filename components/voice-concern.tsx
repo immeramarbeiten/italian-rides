@@ -75,12 +75,12 @@ export function VoiceConcern({
 }: {
   onTranscript: (text: string) => void;
 }) {
-  const [supported] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      "MediaRecorder" in window &&
-      "AudioContext" in window,
-  );
+  // Initialize false so the first client render matches SSR; enable after
+  // mount. Reading window APIs in the initializer breaks hydration.
+  const [supported, setSupported] = useState(false);
+  useEffect(() => {
+    setSupported("MediaRecorder" in window && "AudioContext" in window);
+  }, []);
   const [state, setState] = useState<"idle" | "recording" | "working" | "error">("idle");
   const [message, setMessage] = useState("");
   const recRef = useRef<MediaRecorder | null>(null);
