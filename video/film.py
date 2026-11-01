@@ -20,19 +20,22 @@ import imageio_ffmpeg
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import scenes as app_scenes
+
 W, H, FPS = 1920, 1080, 30
 INK, PAPER, ROSSO, GREY = (22, 20, 17), (244, 241, 234), (200, 16, 46), (110, 108, 102)
 
 # id, seconds, kind, title, sub/narration-note, seg, clip file
 SCENES = [
     ("title", 8, "card", "ITALIAN RIDES", "Show it what's wrong.", None, None),
-    ("speak", 17, "slot", "Speak + show", "Mic > “my mirror is loose” > sample loads", "seg02", "shot-speak.mp4"),
-    ("tap", 25, "slot", "Tap + live mask", "Consent > tap > SAM mask > one re-tap", "seg03", "shot-tap.mp4"),
-    ("agent", 25, "slot", "Agent run", "Trace > ranked suggest > confirm left", "seg04", "shot-agent.mp4"),
-    ("ref", 25, "slot", "Reference transition", "Photo cutout > study > honest caption", "seg05", "shot-ref.mp4"),
-    ("guided", 25, "slot", "One guided question", "Stem or head > sourced note", "seg06", "shot-guided.mp4"),
-    ("tyre", 14, "slot", "Second lane: tyre", "Brisk owner-manual check", "seg07", "shot-tyre.mp4"),
-    ("garage", 20, "slot", "Garage record", "Draft > save > timeline entry", "seg08", "shot-garage.mp4"),
+    ("speak", 17, "app", "Speak + show", "Mic > “my mirror is loose” > sample loads", "seg02", "shot-speak.mp4"),
+    ("tap", 25, "app", "Tap + live mask", "Consent > tap > SAM mask > one re-tap", "seg03", "shot-tap.mp4"),
+    ("agent", 25, "app", "Agent run", "Trace > ranked suggest > confirm left", "seg04", "shot-agent.mp4"),
+    ("ref", 25, "app", "Reference transition", "Photo cutout > study > honest caption", "seg05", "shot-ref.mp4"),
+    ("guided", 25, "app", "One guided question", "Stem or head > sourced note", "seg06", "shot-guided.mp4"),
+    ("tyre", 14, "app", "Second lane: tyre", "Brisk owner-manual check", "seg07", "shot-tyre.mp4"),
+    ("garage", 20, "app", "Garage record", "Draft > save > timeline entry", "seg08", "shot-garage.mp4"),
     ("arch", 14, "arch", "Under the hood", "", "seg09", None),
     ("end", 10, "card", "Point, confirm, fix.", "Built on Meta AI · github.com/immeramarbeiten/italian-rides", "seg10", None),
 ]
@@ -167,13 +170,14 @@ def main() -> None:
             while len(frames) < need:
                 frames.append(frames[-1])
             print(f"  {sid}: clip {clip} ({len(frames)}f)")
+        elif kind == "app":
+            frames = app_scenes.build(sid, dur)
+            print(f"  {sid}: app scene ({tc})")
         else:
             if kind == "card":
                 still = card(title, sub)
-            elif kind == "arch":
-                still = arch_card()
             else:
-                still = slate(title, sub, tc)
+                still = arch_card()
             arr = np.asarray(still)
             frames = [arr] * (dur * FPS)
             print(f"  {sid}: {kind} ({tc})")

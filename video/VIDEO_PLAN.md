@@ -1,8 +1,10 @@
 # Italian Rides — Video Plan (3:03 draft)
 
-Pipeline: `film.py` renders cards + slates + narration + music to MP4.
-Screen-recording slots are slates in the draft; the final render swaps in
-recording segments (same timecodes). Voice: scratch = Piper Lessac (this
+Pipeline: `film.py` renders cards + app scenes + narration + music to MP4.
+App scenes are animated from committed real artifacts (`video/data/`:
+fixtures, decoded SAM masks, headless agent outputs, UI copy) — no fake
+cursors, clicks, or typing. Real screen takes can replace any scene later
+via `--clips` (same timecodes). Voice: scratch = Piper Lessac (this
 draft); final = Apple `say` per `SAY_COMMANDS.sh`. Music: synthesized
 ambient bed (`bed.py`) — original, royalty-free by construction.
 
@@ -25,20 +27,25 @@ Total narration ≈ 265 words. Mandatory beats (from DEMO_SCRIPT.md): consent
 visible, one correction, “reference visualization, not a 3D reconstruction”
 on screen, no torque/part-number/fitment claims anywhere.
 
-## Recording shot list (for the screen session)
+## App scenes (no camera needed)
 
-Record at 1440×900, console clean, reduced-motion OFF (main take):
+Each scene below `film.py` builds from real data — no human recording:
 
-1. `shot-speak.mp4` (0:08–0:25): mic → transcript fills input → sample loads.
-2. `shot-tap.mp4` (0:25–0:50): consent → tap → mask → deliberate mis-tap → re-tap.
-3. `shot-agent.mp4` (0:50–1:15): full agent run → select → confirm left.
-4. `shot-ref.mp4` (1:15–1:40): “See the reference study” → transition → caption hold.
-5. `shot-guided.mp4` (1:40–2:05): answer stem → sub-detail → source scroll.
-6. `shot-tyre.mp4` (2:05–2:19): second lane, brisk.
-7. `shot-garage.mp4` (2:19–2:39): draft → save → timeline entry visible.
+1. speak (0:08–0:25): fixture photo + “SAID: my mirror is loose” bar fade.
+2. tap (0:25–0:50): positional pulse + the real decoded SAM mask, rendered
+   exactly like the app (dashed box, 0.16 fill).
+3. agent (0:50–1:15): the 5 real agent steps appearing + focus card.
+4. ref (1:15–1:40): photo → generated-study crossfade + honesty caption.
+5. guided (1:40–2:05): real question copy → stem highlight → sub-detail.
+6. tyre (2:05–2:19): fixture + real mask + check caption.
+7. garage (2:19–2:39): real entry format, lines appearing in order.
 
-Drop trimmed clips into `video/clips/` named as above; `film.py --clips
-video/clips` assembles the final. Keep a backup take of shots 2–4.
+## Optional: real screen takes (swap-in path)
+
+If a human later captures the running app (1440×900, console clean),
+trim the 7 shots above into `video/clips/shot-*.mp4` and run
+`film.py --clips video/clips` — takes replace app scenes 1:1, same
+timecodes, narration untouched. Keep a backup take of shots 2–4.
 
 ## Narration script (final wording)
 
