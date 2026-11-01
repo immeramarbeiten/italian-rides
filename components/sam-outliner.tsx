@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { SamMatch, SamOverlay } from "@/lib/sam-parse";
 import { cn } from "@/lib/utils";
 
@@ -32,12 +33,16 @@ export function SamOutliner({
   hints,
   initial,
   onSave,
+  controlsTarget,
+  interactive = true,
 }: {
   imageDataUrl: string;
   fileName: string;
   hints: { id: string; label: string }[];
   initial: SamOverlay | null;
   onSave: (sam: SamOverlay | null) => void;
+  controlsTarget?: HTMLElement | null;
+  interactive?: boolean;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -75,8 +80,12 @@ export function SamOutliner({
   }, [measure, imageDataUrl]);
 
   useEffect(() => {
-    if (initial && initial.matches.length > 0) setStatus("shown");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!initial) return;
+    setMatches(initial.matches);
+    setSide(initial.side);
+    setLabel(initial.label);
+    setStatus(initial.matches.length > 0 ? "shown" : "idle");
+  }, [initial]);
 
   async function run(body: Record<string, unknown>, lbl: string) {
     setStatus("loading");
@@ -110,7 +119,7 @@ export function SamOutliner({
   function onTap(e: React.MouseEvent) {
     const img = imgRef.current;
     const wrap = wrapRef.current;
-    if (!img?.naturalWidth || !wrap || !box.w || status === "loading") return;
+    if (!interactive || !img?.naturalWidth || !wrap || !box.w || status === "loading") return;
     const r = wrap.getBoundingClientRect();
     const fx = (e.clientX - r.left - box.x) / box.w;
     const fy = (e.clientY - r.top - box.y) / box.h;
@@ -177,71 +186,8 @@ export function SamOutliner({
 
   const frame = matches[0]?.frame;
 
-  return (
-    <div>
-      <div
-        ref={wrapRef}
-        onClick={onTap}
-        className="relative cursor-crosshair border border-line bg-zinc-100"
-        role="button"
-        tabIndex={-1}
-        aria-label="Scooter photo. Activate the Outline buttons below to outline by name."
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={imgRef}
-          src={imageDataUrl}
-          alt={`Uploaded scooter photograph: ${fileName}`}
-          onLoad={measure}
-          className="max-h-[70vh] w-full object-contain"
-        />
-        {shown && frame && box.w > 0 && (
-          <div
-            className="pointer-events-none absolute"
-            style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
-          >
-            <svg
-              viewBox={`0 0 ${frame.w} ${frame.h}`}
-              className="h-full w-full text-rosso"
-              aria-hidden
-            >
-              {matches.map((mm, i) => (
-                <g key={i}>
-                  <text x={mm.box.x1} y={Math.max(22, mm.box.y1 - 8)} fill="currentColor" fontSize="24">{i + 1}</text>
-                  <rect
-                    x={mm.box.x1}
-                    y={mm.box.y1}
-                    width={mm.box.x2 - mm.box.x1}
-                    height={mm.box.y2 - mm.box.y1}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={4}
-                    strokeDasharray="10 7"
-                  />
-                  {mm.svgPath && (
-                    <g
-                      transform={`translate(${mm.box.x1} ${mm.box.y1}) scale(${(mm.box.x2 - mm.box.x1) / mm.raster.w} ${(mm.box.y2 - mm.box.y1) / mm.raster.h})`}
-                    >
-                      <path
-                        d={mm.svgPath}
-                        fill="currentColor"
-                        fillOpacity={0.16}
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      />
-                    </g>
-                  )}
-                </g>
-              ))}
-            </svg>
-          </div>
-        )}
-      </div>
-      <p className="mt-2 font-mono text-[11px] text-zinc-500">
-        {shown
-          ? `SAM 3.1 OUTLINE — ${label.toUpperCase()}. TAP ELSEWHERE TO RE-OUTLINE.`
-          : "TAP THE PART TO OUTLINE IT — MASKS COME FROM LIVE SAM 3.1 RESPONSES."}
-      </p>
+  const controls = <div className="space-y-2">
+      {shown && <p className="mt-2 text-xs text-zinc-500">SAM outline · {label}. Tap elsewhere to try again.</p>}
 
       {status === "confirm" && (
         <div className="mt-2 border border-line bg-white px-3 py-2 text-sm">
@@ -292,9 +238,9 @@ export function SamOutliner({
         </p>
       )}
 
-      <div className="mt-3 border border-line bg-white p-3">
+      <div className="mt-3">
         <p className="font-mono text-[11px] text-zinc-500">
-          OUTLINE BY NAME · RIDER SIDE: {side === "" ? "?" : side}
+          OR OUTLINE A SUGGESTED AREA
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {hints.length === 0 && (
@@ -319,7 +265,7 @@ export function SamOutliner({
             </button>
           ))}
         </div>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        {matches.length > 0 && <div className="mt-2 flex flex-wrap items-center gap-2">
           {(["", "L", "R"] as const).map((s) => (
             <button
               key={s || "unknown"}
@@ -345,8 +291,63 @@ export function SamOutliner({
               Clear outline
             </button>
           )}
-        </div>
+        </div>}
       </div>
+  </div>;
+
+  return (
+    <div>
+      <div
+        ref={wrapRef}
+        onClick={onTap}
+        className={cn("relative border border-line bg-zinc-100", interactive && "cursor-crosshair")}
+        role="button"
+        tabIndex={-1}
+        aria-label="Scooter photo. Click a visible part to outline it, or use the outline controls."
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          ref={imgRef}
+          src={imageDataUrl}
+          alt={`Uploaded scooter photograph: ${fileName}`}
+          onLoad={measure}
+          className="h-[min(58vh,620px)] min-h-[320px] w-full object-contain"
+        />
+        {shown && frame && box.w > 0 && (
+          <div
+            className="pointer-events-none absolute"
+            style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
+          >
+            <svg
+              viewBox={`0 0 ${frame.w} ${frame.h}`}
+              className="h-full w-full text-rosso"
+              aria-hidden
+            >
+              {matches.map((mm, i) => (
+                <g key={i}>
+                  <text x={mm.box.x1} y={Math.max(22, mm.box.y1 - 8)} fill="currentColor" fontSize="24">{i + 1}</text>
+                  {mm.svgPath && (
+                    <g
+                      transform={`translate(${mm.box.x1} ${mm.box.y1}) scale(${(mm.box.x2 - mm.box.x1) / mm.raster.w} ${(mm.box.y2 - mm.box.y1) / mm.raster.h})`}
+                    >
+                      <path
+                        d={mm.svgPath}
+                        fill="currentColor"
+                        fillOpacity={0.16}
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      />
+                    </g>
+                  )}
+                </g>
+              ))}
+            </svg>
+          </div>
+        )}
+      </div>
+      {controlsTarget !== undefined
+        ? controlsTarget && createPortal(controls, controlsTarget)
+        : controls}
     </div>
   );
 }

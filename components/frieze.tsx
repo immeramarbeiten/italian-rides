@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { VESPA_MODELS, type VespaModel } from "@/lib/vespa-data";
 import { slugify } from "@/lib/models";
@@ -18,6 +18,7 @@ export function Frieze({
   link = false,
   hrefFor,
   art,
+  timeline = false,
 }: {
   models?: VespaModel[];
   selected?: string | null;
@@ -28,8 +29,10 @@ export function Frieze({
   hrefFor?: (name: string) => string;
   /** optional photo art per model name; falls back to line art */
   art?: Record<string, string>;
+  timeline?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState(0);
   const first = models[0] ? shortYear(models[0].y) : "";
   const last = models.length ? shortYear(models[models.length - 1].y) : "";
   const href = (name: string) =>
@@ -65,6 +68,7 @@ export function Frieze({
       </div>
       <div
         ref={trackRef}
+        onScroll={(event) => { if (!timeline) return; const el = event.currentTarget; const max = el.scrollWidth - el.clientWidth; setPosition(max > 0 ? Math.round(el.scrollLeft / max * Math.max(0, models.length - 1)) : 0); }}
         className="scrollbar-none flex snap-x gap-6 overflow-x-auto px-1 pt-6 pb-6"
       >
         {models.map((m, i) => {
@@ -77,12 +81,12 @@ export function Frieze({
                   src={art[m.m]}
                   alt=""
                   loading="lazy"
-                  className="aspect-[4/3] w-full border object-cover"
+                  className={cn("aspect-[4/3] w-full object-cover", !timeline && "border")}
                 />
               ) : (
                 <VespaLineArt
                   className={cn(
-                    "border px-6 py-8",
+                    "px-6 py-8", !timeline && "border",
                     active ? "text-rosso" : "text-ink",
                   )}
                 />
@@ -111,7 +115,7 @@ export function Frieze({
             </>
           );
           const cls = cn(
-            "w-[280px] shrink-0 snap-start text-left transition-colors motion-reduce:transition-none",
+            timeline ? "w-[min(78vw,430px)] shrink-0 snap-start text-left" : "w-[280px] shrink-0 snap-start text-left transition-colors motion-reduce:transition-none",
             active && "[&>span:first-of-type]:border-rosso",
           );
           return link ? (
@@ -138,6 +142,11 @@ export function Frieze({
           );
         })}
       </div>
+      {timeline && models.length > 1 && <div className="mx-auto max-w-6xl px-1 pb-5">
+        <div className="flex items-baseline justify-between gap-3 text-xs text-zinc-600"><span>EXPLORE BY YEAR</span><span>{models[position]?.y} · {models[position]?.m}</span></div>
+        <input type="range" min={0} max={models.length - 1} step={1} value={position} aria-label="Scroll through scooter milestones" aria-valuetext={`${models[position]?.y} ${models[position]?.m}`} className="mt-3 w-full accent-zinc-900" onChange={event => { const i = Number(event.target.value); setPosition(i); const el = trackRef.current; if (el) el.scrollTo({left: (el.scrollWidth - el.clientWidth) * i / (models.length - 1), behavior: "auto"}); }}/>
+        <div className="mt-1 flex gap-4 overflow-x-auto pb-1" aria-label="Jump to a milestone">{models.map((model, i) => <button key={model.m} type="button" aria-label={`Show ${model.m}, ${model.y}`} aria-current={position === i ? "true" : undefined} onClick={() => { const el = trackRef.current; if (el) el.scrollTo({left: (el.scrollWidth - el.clientWidth) * i / (models.length - 1), behavior: "smooth"}); setPosition(i); }} className={cn("shrink-0 border-t pt-2 text-xs", position === i ? "border-ink font-semibold text-ink" : "border-zinc-300 text-zinc-500")}>{shortYear(model.y)}</button>)}</div>
+      </div>}
     </div>
   );
 }

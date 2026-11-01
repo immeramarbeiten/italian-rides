@@ -28,15 +28,14 @@ export function GtsPilot({ session, onConfirm }: { session: InspectionSession; o
     setShowReference(false); setShow3d(false);
   }
   if (scope === "outside") return null;
-  return <section className="mt-6 border border-line bg-white p-5" aria-labelledby="gts-pilot-title">
-    <p className="font-mono text-xs text-zinc-500">GTS REFERENCE STUDY · PILOT</p>
-    <h2 id="gts-pilot-title" className="mt-2 text-xl font-bold">Take a closer look</h2>
-    <p className="mt-2 text-sm text-zinc-600">Outline one visible part above, then tell us what that outline contains. Left and right are from the rider’s seat.</p>
+  return <section className="mt-2 bg-white pt-2" aria-labelledby="gts-pilot-title">
+    <h2 id="gts-pilot-title" className="text-base font-semibold">What does the outline show?</h2>
+    <p className="mt-1 text-sm text-zinc-600">Confirm the part to open its GTS reference. Left and right are from the rider’s seat.</p>
     {scope === "unknown" && <p className="mt-2 text-xs text-zinc-600">Your scooter configuration is unknown. The following is a GTS 125 reference only; applicability is not verified.</p>}
     {scope === "reference" && <p className="mt-2 text-xs text-zinc-600">GTS 125 selected; this does not verify the exact market, year or catalogue configuration.</p>}
     {usable.length === 0 ? <p className="mt-4 text-sm">A decoded SAM mask is needed before you can link a part to this study.</p> : <>
       <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Choose the outlined component">
-        {(Object.keys(GTS_PILOT_COMPONENTS) as GtsPilotId[]).map((id)=><button key={id} type="button" aria-pressed={candidate===id} onClick={()=>setCandidate(id)} className={`border px-3 py-2 text-sm ${candidate===id?"border-ink bg-ink text-white":"border-line"}`}>{GTS_PILOT_COMPONENTS[id].label}</button>)}
+        {(Object.keys(GTS_PILOT_COMPONENTS) as GtsPilotId[]).filter(id => session.selectedPart === "wheels" ? id === "gts125-front-tyre" : id !== "gts125-front-tyre").map((id)=><button key={id} type="button" aria-pressed={candidate===id} onClick={()=>setCandidate(id)} className={`border px-3 py-2 text-sm ${candidate===id?"border-ink bg-ink text-white":"border-line"}`}>{GTS_PILOT_COMPONENTS[id].label}</button>)}
       </div>
       {usable.length > 1 && <label className="mt-3 block text-sm">Which outline? <select className="ml-2 border border-line p-2" value={objectId} onChange={(e)=>setObjectId(e.target.value)}><option value="">Choose an outline</option>{usable.map((m,i)=><option key={m.objectId} value={m.objectId}>Outline {i+1} · object {m.objectId}</option>)}</select></label>}
       <button type="button" className="mt-3 border border-ink px-4 py-2 text-sm disabled:opacity-40" disabled={!candidate || !matchId} onClick={confirm}>Confirm this outline</button>

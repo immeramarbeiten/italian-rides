@@ -31,6 +31,19 @@ describe("pickFocus", () => {
       suggestedAnswer: null,
     });
   });
+  it("prioritizes an unambiguous concern over a higher-ranked unrelated component", () => {
+    const pick = pickFocus(
+      [{ id: "legshield", label: "Legshield" }, { id: "handlebar", label: "Handlebar" }],
+      "the mirror glass is cracked",
+      (words, id) => id === "handlebar" && words.includes("glass") ? "head" : null,
+    );
+    assert.equal(pick.id, "handlebar");
+    assert.equal(pick.suggestedAnswer, "head");
+  });
+  it("falls back to the top candidate when the concern matches more than one", () => {
+    const pick = pickFocus([{id:"wheels",label:"Wheels"},{id:"handlebar",label:"Handlebar"}], "cracked", () => "damage");
+    assert.equal(pick.id, "wheels");
+  });
   it("leaves ambiguous words unannotated", () => {
     const pick = pickFocus(
       [{ id: "handlebar", label: "Handlebar" }],

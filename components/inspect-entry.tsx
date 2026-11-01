@@ -19,12 +19,17 @@ export function InspectEntry() {
     : familyFromArchive(model);
   const initialPart = VESPA_PARTS.some((p) => p.id === part) ? part : "wheels";
   const [partId, setPartId] = useState(initialPart);
+  const [mode, setMode] = useState<"photo" | "guide">("photo");
   const selected = VESPA_PARTS.find((p) => p.id === partId) ?? VESPA_PARTS[0];
   const info = COMPONENT_INFO[selected.id];
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
-      <div>
+    <div>
+      <div className="mb-5 inline-flex border border-zinc-200 p-1" role="group" aria-label="Choose how to explore">
+        <button type="button" aria-pressed={mode === "photo"} onClick={() => setMode("photo")} className={cn("px-5 py-2 text-sm",mode === "photo" && "bg-ink text-white")}>Your photo</button>
+        <button type="button" aria-pressed={mode === "guide"} onClick={() => setMode("guide")} className={cn("px-5 py-2 text-sm",mode === "guide" && "bg-ink text-white")}>Field guide</button>
+      </div>
+      {mode === "guide" ? <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]"><div>
         <p className="font-mono text-[11px] tracking-[0.14em] text-zinc-600">
           THE FIELD GUIDE
         </p>
@@ -64,19 +69,7 @@ export function InspectEntry() {
             {info.function}
           </p>
         </div>
-      </div>
-      <div>
-        <p className="font-mono text-[11px] tracking-[0.14em] text-zinc-600">
-          YOUR SCOOTER — OPTIONAL COMPANION
-        </p>
-        <div className="mt-3">
-          <PhotoUploader
-            initialModel={initialModel}
-            selectedPart={partId}
-            ctaLabel="Choose a component"
-          />
-        </div>
-      </div>
+      </div><div className="border-l border-zinc-200 pl-6"><p className="text-sm text-zinc-600">Explore the machine, then compare a component with your own photo.</p><button type="button" onClick={() => setMode("photo")} className="mt-4 border border-ink px-4 py-2 text-sm">Use a photo →</button></div></div> : <PhotoUploader initialModel={initialModel} selectedPart={part} ctaLabel="Continue to inspection" />}
     </div>
   );
 }

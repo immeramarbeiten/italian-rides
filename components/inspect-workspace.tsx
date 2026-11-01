@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import {
   VESPA_PARTS,
   rankPartsByHints,
@@ -20,22 +20,14 @@ import {
   saveSession,
   takeEvictionNotice,
   type InspectionSession,
-  type SessionStatus,
 } from "@/lib/inspect-session";
 import { SamOutliner } from "@/components/sam-outliner";
 import { GtsPilot } from "@/components/gts-pilot";
 import { GuidedDetail } from "@/components/guided-detail";
 import { AgentTrace } from "@/components/agent-trace";
+import { RequestDraft } from "@/components/request-draft";
 import { buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
-const STEPS: { id: SessionStatus; label: string }[] = [
-  { id: "uploaded", label: "Uploaded" },
-  { id: "matched", label: "Hints computed" },
-  { id: "selected", label: "Selected" },
-  { id: "mapped", label: "Mapped" },
-];
 
 export function InspectWorkspace() {
   const params = useParams<{ sessionId: string }>();
@@ -43,6 +35,7 @@ export function InspectWorkspace() {
   const [loaded, setLoaded] = useState(false);
   const [unidentified, setUnidentified] = useState(false);
   const [evicted, setEvicted] = useState(0);
+  const [outlineControls, setOutlineControls] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setSession(getSession(params.sessionId));
@@ -82,10 +75,12 @@ export function InspectWorkspace() {
     );
   }
 
-  const stepIdx = STEPS.findIndex((s) => s.id === session.status);
-  const selected = session.selectedPart
-    ? VESPA_PARTS.find((p) => p.id === session.selectedPart)
-    : null;
+  // A recommendation is highlighted for review, but never persisted as confirmed.
+  const topCandidate = session.ai?.components[0];
+  const suggestedId = !unidentified && topCandidate && topCandidate.confidence >= 0.6
+    ? topCandidate.id as VespaPartId : null;
+  const selectedId = session.selectedPart ?? suggestedId;
+  const selected = VESPA_PARTS.find((p) => p.id === selectedId) ?? null;
   const slug =
     ARCHIVE_MODELS.find((m) => m.m === session.family)?.slug ??
     ARCHIVE_MODELS.find(
@@ -108,328 +103,54 @@ export function InspectWorkspace() {
       subPart: null,
       guidedAnswer: null,
       pilotSelection: null,
+      agentObservation: null,
     });
   }
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-3 border-b border-line pb-4">
-        <Link
-          href="/inspect"
-          className="inline-flex items-center gap-1 font-mono text-xs text-zinc-600 hover:text-rosso"
-        >
-          <ArrowLeft className="size-4" aria-hidden /> INSPECT
-        </Link>
-        <span className="font-mono text-xs text-zinc-500">
-          {session.family || "Unknown model"}
-          {session.engine ? ` ${session.engine}` : ""}
-          {session.year ? ` · ${session.year}` : ""} · {session.fileName}
-        </span>
-        <span className="ml-auto flex items-center gap-2">
-          <Badge variant={mapped ? "default" : "secondary"}>
-            {STEPS[stepIdx]?.label ?? session.status}
-          </Badge>
-          <Link
-            href="/inspect"
-            className="font-mono text-xs text-rosso underline underline-offset-2"
-          >
-            Replace image
-          </Link>
-        </span>
+    <div className="pb-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-3">
+        <div className="flex items-center gap-4">
+          <Link href="/inspect" className="inline-flex items-center gap-1 text-sm text-zinc-600 hover:text-ink"><ArrowLeft className="size-4" aria-hidden /> New photo</Link>
+          <span className="hidden text-sm text-zinc-500 sm:inline">{session.family || "Scooter not identified"}{session.engine ? ` · ${session.engine}` : ""}{session.year ? ` · ${session.year}` : ""}</span>
+        </div>
+        <p className="text-xs text-zinc-500">{mapped ? "03 / Explore" : selected ? "02 / Confirm" : "01 / Select"}</p>
       </div>
-
-      {evicted > 0 && (
-        <p
-          role="note"
-          className="mt-3 border border-amber-500 bg-amber-50 px-4 py-2 text-sm text-amber-900"
-        >
-          Storage was full — removed {evicted} oldest inspection
-          {evicted === 1 ? "" : "s"} to save this one.
-        </p>
-      )}
-
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1.65fr_1fr]">
+      {evicted > 0 && <p role="note" className="mt-2 text-sm text-amber-800">Storage was full; {evicted} older inspection{evicted === 1 ? " was" : "s were"} removed.</p>}
+      <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,1fr)]">
         <div className="min-w-0">
-          <SamOutliner
-            imageDataUrl={session.imageDataUrl}
-            fileName={session.fileName}
-            hints={(ai?.components ?? [])
-              .slice(0, 3)
-              .map((c) => ({
-                id: c.id,
-                label:
-                  VESPA_PARTS.find((p) => p.id === c.id)?.label ?? c.label,
-              }))}
-            initial={session.sam ?? null}
-            onSave={(sam) => update({ sam, pilotSelection: null })}
-          />
-          <GtsPilot
-            session={session}
-            onConfirm={(pilotSelection) =>
-              update(
-                pilotSelection
-                  ? {
-                      pilotSelection,
-                      selectedPart: pilotToAssembly(
-                        pilotSelection.componentId,
-                      ),
-                      status: "mapped",
-                      subPart: null,
-                      guidedAnswer: null,
-                    }
-                  : { pilotSelection },
-              )
-            }
-          />
+          <SamOutliner imageDataUrl={session.imageDataUrl} fileName={session.fileName} hints={(ai?.components ?? []).slice(0, 3).map(c => ({id:c.id,label:VESPA_PARTS.find(p=>p.id===c.id)?.label ?? c.label}))} initial={session.sam ?? null} onSave={sam => update({sam,pilotSelection:null})} controlsTarget={outlineControls} interactive={!mapped}/>
+          <p className="mt-2 text-xs text-zinc-500">{session.fileName} · {mapped ? "Choose Change to adjust the selection." : "Click a part of the photo to outline it."}</p>
         </div>
-
-        <div className="min-w-0">
-          <ol className="flex gap-1" aria-label="Recognition progress">
-            {STEPS.map((s, i) => (
-              <li
-                key={s.id}
-                className={cn(
-                  "h-1.5 flex-1 rounded-full",
-                  i <= stepIdx ? "bg-rosso" : "bg-line",
-                )}
-                title={s.label}
-              />
-            ))}
-          </ol>
-          <p className="mt-2 text-xs text-zinc-600">{session.matchNote}</p>
-
-          {!mapped ? (
-            <>
-              <AgentTrace
-                imageDataUrl={session.imageDataUrl}
-                concern={session.concern ?? ""}
-                onSelect={(id) => select(id)}
-              />
-              <h2 className="font-grotesk mt-5 text-lg font-bold">
-                What do you see?
-              </h2>
-              <ul className="mt-3 space-y-2">
-                {rankedIds.map((id) => {
-                  const p = VESPA_PARTS.find((x) => x.id === id)!;
-                  const active = session.selectedPart === p.id;
-                  const hinted = session.hintPartIds.includes(p.id);
-                  const suggested = topHint === p.id;
-                  const partConf = ai?.components.find(
-                    (c) => c.id === p.id,
-                  )?.confidence;
-                  return (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        onClick={() => select(active ? null : p.id)}
-                        aria-pressed={active}
-                        className={cn(
-                          "flex w-full items-center gap-3 border px-3 py-2.5 text-left transition-colors",
-                          active
-                            ? "border-ink bg-zinc-100"
-                            : "border-line bg-white hover:border-zinc-400",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "inline-flex h-6 w-6 shrink-0 items-center justify-center",
-                            active ? "bg-rosso text-white" : "bg-zinc-100 text-ink",
-                          )}
-                        >
-                          {active && <Check className="size-4" aria-hidden />}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-medium">
-                            {p.label}
-                            {suggested && !active && (
-                              <span className="ml-2 bg-rosso px-1.5 py-0.5 font-mono text-[10px] text-white">
-                                SUGGESTED
-                              </span>
-                            )}
-                            {hinted && (
-                              <span className="ml-2 font-mono text-[10px] text-zinc-500">
-                                {partConf !== undefined
-                                  ? `AI · ${confidenceBand(partConf)}`
-                                  : "filename hint"}
-                              </span>
-                            )}
-                          </span>
-                          <span className="block truncate text-xs text-zinc-500">
-                            {p.note}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-              <button
-                type="button"
-                onClick={() => {
-                  setUnidentified(true);
-                  update({
-                    selectedPart: null,
-                    status: "matched",
-                    subPart: null,
-                    guidedAnswer: null,
-                    pilotSelection: null,
-                  });
-                }}
-                className="mt-3 font-mono text-xs text-zinc-500 underline underline-offset-2 hover:text-rosso"
-              >
-                Component not identifiable
-              </button>
-              {unidentified && (
-                <p className="mt-2 border border-dashed border-line px-3 py-2 text-sm text-zinc-600">
-                  No confident match — try another angle, or browse the{" "}
-                  <Link href="/archive" className="underline hover:text-rosso">
-                    archive
-                  </Link>{" "}
-                  instead. The system will not guess.
-                </p>
-              )}
-              {selected && (
-                <div className="mt-4 border border-line bg-white p-4">
-                  <p className="font-grotesk font-bold">{selected.label}</p>
-                  <p className="mt-1 font-mono text-[11px] text-zinc-500">
-                    {selected.id} · {COMPONENT_INFO[selected.id].assembly.toUpperCase()}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => update({ status: "mapped" })}
-                    className={cn(buttonVariants({}), "mt-3 w-full")}
-                  >
-                    Confirm this component <Check aria-hidden />
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            selected && (
-              <div className="mt-5 border border-line bg-white p-5">
-                <Badge variant="default">Mapped ✓</Badge>
-                <p className="font-grotesk mt-2 text-xl font-bold">
-                  {selected.label}
-                </p>
-                <p className="mt-1 text-sm text-zinc-600">
-                  {COMPONENT_INFO[selected.id].function.split(". ")[0]}.
-                </p>
-                {action && (
-                  <div className="mt-4 border border-line bg-parchment p-4">
-                    <p className="font-mono text-[11px] tracking-[0.08em] text-zinc-600">
-                      {action.mode === "owner-check"
-                        ? "OWNER CHECK"
-                        : "NOTE + MECHANIC REFERRAL"}
-                    </p>
-                    <p className="font-grotesk mt-1 font-bold">{action.title}</p>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-700">
-                      {action.lines.map((l) => (
-                        <li key={l}>{l}</li>
-                      ))}
-                    </ul>
-                    <p className="mt-2 border-t border-line pt-2 font-mono text-[11px] text-zinc-500">
-                      SOURCE: {action.source}
-                    </p>
-                  </div>
-                )}
-                <GuidedDetail
-                  part={selected.id}
-                  concern={session.concern}
-                  subPart={session.subPart ?? null}
-                  guidedAnswer={session.guidedAnswer ?? null}
-                  onAnswer={(guidedAnswer, subPart) =>
-                    update({ guidedAnswer, subPart })
-                  }
-                  onSelectSub={(subPart) => update({ subPart })}
-                />
-                <div className="mt-4 space-y-2">
-                  {slug ? (
-                    <Link
-                      href={`/models/${slug}/viewer?component=${selected.id}`}
-                      className={cn(buttonVariants({}), "w-full")}
-                    >
-                      Show in 3D <ArrowRight aria-hidden />
-                    </Link>
-                  ) : (
-                    <p className="text-sm text-zinc-500">
-                      Confirm the model above to unlock the 3D link — or{" "}
-                      <Link href="/archive" className="underline hover:text-rosso">
-                        browse the archive
-                      </Link>
-                      .
-                    </p>
-                  )}
-                  {pxGuidesApply(session.family || "") ? (
-                    <Link
-                      href={`/repairs/${selected.id}`}
-                      className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-                    >
-                      Explore repair information
-                    </Link>
-                  ) : (
-                    <p className="border border-dashed border-line px-3 py-2 text-center text-xs text-zinc-500">
-                      Generic repair guides are PX-pattern only — not shown
-                      for {session.family || "unknown scooters"}. The checked
-                      note above is your guidance here.
-                    </p>
-                  )}
-                  <Link
-                    href={`/garage?from=${session.id}`}
-                    className={cn(buttonVariants({ variant: "ghost" }), "w-full")}
-                  >
-                    Record in My Garage
-                  </Link>
-                </div>
+        <aside className="min-w-0 lg:max-h-[calc(100dvh-9rem)] lg:overflow-y-auto" aria-label="Inspection steps">
+          <div className="border border-zinc-200 bg-white p-4 sm:p-5">
+            <div className="flex items-baseline justify-between gap-2"><div><p className="text-xs font-medium text-zinc-500">{mapped ? "COMPONENT SELECTED" : "01 / FIND THE PART"}</p><h1 className="mt-1 text-xl font-semibold">{mapped && selected ? selected.label : "What are we looking at?"}</h1></div>{mapped && <button type="button" onClick={() => update({status:"selected"})} className="text-xs underline">Change</button>}</div>
+            {!mapped && <p className="mt-2 text-sm text-zinc-600">Tap the photo to outline a part, or choose one below. You make the final selection.</p>}
+            {!mapped && <div ref={setOutlineControls} />}
+            {!mapped && <>
+              <div className="mt-3 border-t border-zinc-200 pt-3">
+                <p className="mb-2 text-xs font-medium text-zinc-600">02 / CHOOSE A COMPONENT</p>
+                <div className="grid grid-cols-2 gap-2">{rankedIds.map(id => { const part = VESPA_PARTS.find(x => x.id === id)!; const active = selectedId === id; const conf = ai?.components.find(c => c.id === id)?.confidence; return <button key={id} type="button" onClick={() => select(id)} aria-pressed={active} className={cn("border px-3 py-2 text-left text-sm", active ? "border-ink bg-ink text-white" : "border-zinc-200 hover:border-ink")}><span className="block font-medium">{part.label}</span>{topHint === id && <span className="block text-xs opacity-70">Suggested{conf !== undefined ? ` · ${confidenceBand(conf)} model confidence` : ""}</span>}</button>; })}</div>
+                {selected && <button type="button" onClick={() => update({selectedPart:selected.id,status:"mapped"})} className={cn(buttonVariants({}), "mt-3 w-full")}>Continue with {selected.label} <ArrowRight aria-hidden /></button>}
+                <button type="button" onClick={() => {select(null);setUnidentified(true);}} className="mt-3 text-xs text-zinc-500 underline">I can’t identify the part</button>
+                {unidentified && <p className="mt-2 text-sm text-zinc-600">Try another angle or <Link href="/archive" className="underline">browse the archive</Link>.</p>}
               </div>
-            )
-          )}
-
-          <details className="mt-6 border border-line bg-white text-sm">
-            <summary className="cursor-pointer px-4 py-3 font-mono text-xs text-zinc-600">
-              TECHNICAL DETAILS
-            </summary>
-            <dl className="space-y-2 border-t border-line px-4 py-3 font-mono text-xs text-zinc-600">
-              <div className="flex justify-between gap-4">
-                <dt>Matcher</dt>
-                <dd className="text-right">
-                  {ai ? `${ai.model} (Meta Model API)` : "local-filename-heuristic v0"}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt>External AI</dt>
-                <dd className="text-right">
-                  {ai ? "connected — one identification call" : "not connected"}
-                </dd>
-              </div>
-              {ai?.modelGuess && (
-                <div className="flex justify-between gap-4">
-                  <dt>Model guess</dt>
-                  <dd className="text-right">{ai.modelGuess}</dd>
-                </div>
-              )}
-              <div className="flex justify-between gap-4">
-                <dt>Segmentation</dt>
-                <dd className="text-right">
-                  {session.sam
-                    ? `SAM 3.1 · ${session.sam.matches.length} mask${session.sam.matches.length === 1 ? "" : "s"} · side ${session.sam.side || "?"}`
-                    : "tap the photo to outline"}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt>Prepare time</dt>
-                <dd className="text-right">{session.matchMs} ms (this device)</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt>Component id</dt>
-                <dd className="text-right">{session.selectedPart ?? "—"}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt>Created</dt>
-                <dd className="text-right">{new Date(session.createdAt).toLocaleString()}</dd>
-              </div>
-            </dl>
-          </details>
-        </div>
+              <details className="mt-4 border-t border-zinc-200 pt-3"><summary className="cursor-pointer text-sm text-zinc-600">More: agent-assisted inspection</summary><AgentTrace imageDataUrl={session.imageDataUrl} concern={session.concern ?? ""} overview={ai} onSelect={result => { if (!result.focusId) return; setUnidentified(false); update({selectedPart:result.focusId, status:"selected", subPart:null, guidedAnswer:null, pilotSelection:null, agentObservation:{focusId:result.focusId,detailNote:result.detailNote,band:result.band}, ...(result.mask?.svgPath ? {sam:{matches:[result.mask], side:"", label:result.focusLabel}} : {sam:null}), ...(result.overview ? {ai:result.overview} : {})}); }}/></details>
+            </>}
+            {mapped && selected && <>
+              <p className="mt-2 text-sm text-zinc-600">{COMPONENT_INFO[selected.id].function.split(". ")[0]}.</p>
+              {session.agentObservation?.focusId === selected.id && session.agentObservation.detailNote && <p className="mt-3 bg-zinc-50 p-3 text-sm">Agent observation: {session.agentObservation.detailNote} <span className="text-zinc-500">· Unverified; confirm in person.</span></p>}
+              {action && <details className="mt-4 border-t border-zinc-200 pt-3"><summary className="cursor-pointer text-sm font-medium">{action.title} · source and guidance</summary><ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-700">{action.lines.map(l=><li key={l}>{l}</li>)}</ul><p className="mt-2 text-xs text-zinc-500">Source: {action.source}</p></details>}
+              <details className="mt-4 border-t border-zinc-200 pt-3"><summary className="cursor-pointer text-sm font-medium">Explore this component</summary><GuidedDetail part={selected.id} concern={session.concern} subPart={session.subPart ?? null} guidedAnswer={session.guidedAnswer ?? null} onAnswer={(guidedAnswer,subPart)=>update({guidedAnswer,subPart})} onSelectSub={subPart=>update({subPart})}/></details>
+              {slug && (slug !== "vespa-gts-granturismo" || selected.id === "handlebar") && <Link href={`/models/${slug}/viewer?component=${selected.id}`} className={cn(buttonVariants({}), "mt-4 w-full")}>Explore the 3D study <ArrowRight aria-hidden /></Link>}
+              {pxGuidesApply(session.family || "") && <Link href={`/repairs/${selected.id}`} className={cn(buttonVariants({variant:"outline"}), "mt-2 w-full")}>Explore repair information</Link>}
+              <RequestDraft session={session} componentLabel={selected.label}/>
+              <Link href={`/garage?from=${session.id}`} className={cn(buttonVariants({variant:"outline"}), "mt-2 w-full")}>Record in My Garage</Link>
+            </>}
+          </div>
+          {mapped && session.sam && (selected?.id === "handlebar" || selected?.id === "wheels") && <details className="mt-3 border border-zinc-200 bg-white p-4"><summary className="cursor-pointer text-sm font-medium">Connect this outline to the GTS study</summary><GtsPilot session={session} onConfirm={pilotSelection=>update(pilotSelection ? {pilotSelection,selectedPart:pilotToAssembly(pilotSelection.componentId),status:"mapped",subPart:null,guidedAnswer:null} : {pilotSelection})}/></details>}
+          <details className="mt-3 text-xs text-zinc-500"><summary className="cursor-pointer">How this result was prepared</summary><p className="mt-2">{session.matchNote} {session.sam ? `SAM returned ${session.sam.matches.length} outline(s).` : "No outline has been saved."}</p></details>
+        </aside>
       </div>
     </div>
   );

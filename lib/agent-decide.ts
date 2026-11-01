@@ -36,7 +36,8 @@ export function pickFocus(
   concern: string,
   suggest: (words: string, part: VespaPartId) => string | null,
 ): FocusPick {
-  const top = components[0];
+  const matches = components.filter(c => suggest(concern, c.id as VespaPartId) !== null);
+  const top = matches.length === 1 ? matches[0] : components[0];
   if (!top) return { id: null, label: "", suggestedAnswer: null };
   const id = top.id as VespaPartId;
   return {

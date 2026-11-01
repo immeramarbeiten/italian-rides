@@ -212,7 +212,8 @@ export function PhotoUploader({
   }
 
   return (
-    <div>
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,1fr)]">
+      <div>
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -232,7 +233,7 @@ export function PhotoUploader({
         tabIndex={0}
         aria-label="Upload a scooter photograph"
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center border-2 border-dashed px-6 py-12 text-center transition-colors",
+          "flex min-h-[300px] cursor-pointer flex-col items-center justify-center border border-dashed px-6 py-8 text-center transition-colors lg:min-h-[420px]",
           dragging ? "border-rosso bg-zinc-100" : "border-line bg-white hover:border-zinc-400",
           preview && "py-6",
         )}
@@ -242,7 +243,7 @@ export function PhotoUploader({
           <img
             src={preview}
             alt="Selected scooter photograph preview"
-            className="max-h-64 w-auto border border-line object-contain"
+            className="max-h-[48vh] w-auto object-contain"
           />
         ) : (
           <>
@@ -304,9 +305,10 @@ export function PhotoUploader({
         </div>
       )}
 
-      <div className="mt-4">
-        <p className="font-mono text-[11px] tracking-[0.1em] text-zinc-600">
-          OR TRY A LABELLED SAMPLE
+      <details className="mt-3" open={!preview}>
+        <summary className="cursor-pointer text-sm font-medium">Try a sample photograph</summary>
+        <p className="mt-2 font-mono text-[11px] tracking-[0.1em] text-zinc-600">
+          LABELLED SAMPLES
         </p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {SAMPLES.map((s) => (
@@ -333,11 +335,12 @@ export function PhotoUploader({
             </button>
           ))}
         </div>
-      </div>
+      </details>
 
-      <div className="mt-4">
-        <p className="font-mono text-[11px] tracking-[0.1em] text-zinc-600">
-          OR TEST WITH AN AI-GENERATED FIXTURE
+      <details className="mt-3">
+        <summary className="cursor-pointer text-sm font-medium">Try a simulated example</summary>
+        <p className="mt-2 font-mono text-[11px] tracking-[0.1em] text-zinc-600">
+          AI-GENERATED FIXTURES
         </p>
         <p className="mt-1 text-xs text-zinc-600">Simulated examples: details and damage are invented, and do not establish a component’s condition or exact vehicle fit.</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
@@ -365,9 +368,14 @@ export function PhotoUploader({
             </button>
           ))}
         </div>
+      </details>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="border border-zinc-200 bg-white p-5">
+      <p className="text-xs font-medium text-zinc-500">YOUR SCOOTER</p>
+      <h2 className="mt-1 text-xl font-semibold">Tell us what you know</h2>
+      <p className="mt-1 text-sm text-zinc-600">All fields are optional. You can change them later.</p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <label className="block text-sm">
           <span className="font-medium">Manufacturer</span>
           <select className={`${inputCls} mt-1`} defaultValue="Vespa" aria-label="Manufacturer">
@@ -445,14 +453,14 @@ export function PhotoUploader({
         </p>
       )}
 
-      <div className="mt-6 border border-zinc-300 bg-white p-4 text-sm">
-        <p className="font-medium">For the clearest result</p>
+      <details className="mt-4 border-t border-zinc-200 pt-3 text-sm">
+        <summary className="cursor-pointer font-medium">Tips for a clear photo</summary>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-zinc-600">
           <li>Good natural light, component clearly visible.</li>
           <li>Avoid heavy reflections, clutter or cropping the part off.</li>
           <li>Include enough of the scooter to place the component.</li>
         </ul>
-      </div>
+      </details>
       <p className="mt-3 text-xs leading-relaxed text-zinc-600">
         Photo, words, and any voice clip above go to the Meta Model API —
         EXIF-stripped. A copy stays in this browser only; we cannot verify
@@ -490,6 +498,7 @@ export function PhotoUploader({
           </>
         )}
       </button>
+      </div>
     </div>
   );
 }

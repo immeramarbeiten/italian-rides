@@ -39,6 +39,8 @@ export type InspectionSession = {
   matchMs: number;
   /** Present when the vision model answered; absent on fallback or old sessions. */
   ai?: AiResult | null;
+  /** Agent observations are suggestions, not verified damage or fitment. */
+  agentObservation?: { focusId: VespaPartId; detailNote: string; band: "high" | "medium" | "low" | null } | null;
   /** SAM outline the user drew; absent until first outline. */
   sam?: SamOverlay | null;
   /** User confirmation is tied to a particular SAM object and is cleared on re-outline. */

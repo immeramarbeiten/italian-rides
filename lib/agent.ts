@@ -51,15 +51,15 @@ async function postJson<T>(url: string, body: unknown): Promise<T | null> {
 }
 
 /**
- * Run the loop. At most 4 model calls (overview, outline, zoom, and no
- * more). Every step emits an event first, so the UI narrates honestly —
+ * Run the loop. At most 3 model calls (overview, outline, and zoom); an existing overview is reused. Every step emits an event first, so the UI narrates honestly —
  * including failures and early stops.
  */
 export async function runInspectAgent(
   args: {
     imageDataUrl: string;
     concern: string;
-    cropToBox: (box: Box) => Promise<string | null>;
+    initialOverview?: AiResult | null;
+    cropToBox: (box: Box, frame: {w: number; h: number}) => Promise<string | null>;
   },
   onEvent: (e: AgentEvent) => void,
 ): Promise<AgentResult> {
@@ -79,14 +79,13 @@ export async function runInspectAgent(
   };
 
   // 1. Look.
-  emit({ step: "look", status: "start", detail: "Asking Spark what is visible…" });
-  const seen = await postJson<{ model?: unknown; result?: unknown }>(
-    "/api/inspect",
-    { image: args.imageDataUrl, concern: args.concern },
+  emit({ step: "look", status: "start", detail: args.initialOverview ? "Reviewing the existing photo analysis…" : "Asking Spark what is visible…" });
+  const seen = args.initialOverview ? null : await postJson<{ model?: unknown; result?: unknown }>(
+    "/api/inspect", { image: args.imageDataUrl, concern: args.concern },
   );
-  const overview = seen
+  const overview = args.initialOverview ?? (seen
     ? parseAiResult(seen.result, typeof seen.model === "string" ? seen.model : "?")
-    : null;
+    : null);
   if (!overview || overview.components.length === 0) {
     emit({
       step: "look",
@@ -121,7 +120,7 @@ export async function runInspectAgent(
     mode: "phrase",
     phrase: outlinePhrase(pick.id, pick.label),
   });
-  const mask = outlined?.matches?.[0] ?? null;
+  const mask = outlined?.matches?.find(m => !!m.svgPath) ?? null;
   if (!mask) {
     emit({ step: "outline", status: "fail", detail: "No mask — keeping the suggestion only." });
     emit({ step: "conclude", status: "done", detail: "Done without an outline." });
@@ -130,7 +129,7 @@ export async function runInspectAgent(
       overview,
       focusId: pick.id,
       focusLabel: pick.label,
-      band: confidenceBand(overview.components[0].confidence),
+      band: confidenceBand(overview.components.find(c => c.id === pick.id)?.confidence ?? 0),
       trace,
     };
   }
@@ -138,7 +137,7 @@ export async function runInspectAgent(
 
   // 4. Zoom: crop to the mask and re-identify the close-up.
   emit({ step: "zoom", status: "start", detail: "Zooming in for a closer look…" });
-  const crop = await args.cropToBox(mask.box);
+  const crop = await args.cropToBox(mask.box, mask.frame);
   let detailNote = "";
   if (crop) {
     const zoomed = await postJson<{ model?: unknown; result?: unknown }>(
@@ -160,7 +159,7 @@ export async function runInspectAgent(
   return {
     focusId: pick.id,
     focusLabel: pick.label,
-    band: confidenceBand(overview.components[0].confidence),
+    band: confidenceBand(overview.components.find(c => c.id === pick.id)?.confidence ?? 0),
     mask,
     detailNote,
     overview,

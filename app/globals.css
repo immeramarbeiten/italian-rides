@@ -8,8 +8,8 @@
   --color-rosso-deep: #931b12;
   --color-verde: #1e7a3c;
   --color-ambra: #b26a00;
-  --color-sand: #f3efe4;
-  --color-line: #e6e1d2;
+  --color-sand: #f4f4f2;
+  --color-line: #dedede;
   --color-asphalt: #23201a;
   --color-fog: #a39c8b;
 
@@ -17,10 +17,10 @@
   --color-lagoon: #c1271b;
   --color-lagoon-deep: #931b12;
   --color-racing: #c1271b;
-  --color-parchment: #f3efe4;
+  --color-parchment: #f4f4f2;
 
   --font-grotesk: "Archivo", system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
+  --font-display: "Archivo", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 

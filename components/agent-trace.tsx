@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { runInspectAgent, type AgentEvent, type AgentResult } from "@/lib/agent";
 import { padBox, type Box } from "@/lib/agent-decide";
-import type { VespaPartId } from "@/lib/vespa-inspect";
 import { cn } from "@/lib/utils";
 
 const STEP_LABEL: Record<AgentEvent["step"], string> = {
@@ -15,7 +14,7 @@ const STEP_LABEL: Record<AgentEvent["step"], string> = {
 };
 
 /** Crop a data-URL photo to a (padded) box, in-browser. */
-async function cropPhoto(imageDataUrl: string, box: Box): Promise<string | null> {
+async function cropPhoto(imageDataUrl: string, box: Box, frame: {w: number; h: number}): Promise<string | null> {
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
       const el = new Image();
@@ -26,7 +25,8 @@ async function cropPhoto(imageDataUrl: string, box: Box): Promise<string | null>
     const w = img.naturalWidth;
     const h = img.naturalHeight;
     if (!w || !h) return null;
-    const b = padBox(box, w, h);
+    if (!frame.w || !frame.h) return null;
+    const b = padBox({x1:box.x1*w/frame.w,y1:box.y1*h/frame.h,x2:box.x2*w/frame.w,y2:box.y2*h/frame.h}, w, h);
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, b.x2 - b.x1);
     canvas.height = Math.max(1, b.y2 - b.y1);
@@ -47,11 +47,13 @@ async function cropPhoto(imageDataUrl: string, box: Box): Promise<string | null>
 export function AgentTrace({
   imageDataUrl,
   concern,
+  overview,
   onSelect,
 }: {
   imageDataUrl: string;
   concern: string;
-  onSelect: (id: VespaPartId) => void;
+  overview?: import("@/lib/inspect-session").AiResult | null;
+  onSelect: (result: AgentResult) => void;
 }) {
   const [events, setEvents] = useState<AgentEvent[]>([]);
   const [running, setRunning] = useState(false);
@@ -67,7 +69,8 @@ export function AgentTrace({
       {
         imageDataUrl,
         concern,
-        cropToBox: (box) => cropPhoto(imageDataUrl, box),
+        initialOverview: overview,
+        cropToBox: (box, frame) => cropPhoto(imageDataUrl, box, frame),
       },
       (e) => setEvents((prev) => [...prev, e]),
     );
@@ -83,8 +86,7 @@ export function AgentTrace({
       {!running && events.length === 0 && !confirming && (
         <>
           <p className="mt-2 text-sm text-zinc-700">
-            Let the agent look, focus, outline, and zoom in — up to 4 model
-            calls, narrated live.
+            Let the agent choose a focus, outline it, and inspect a close-up. Each step is shown as it happens.
           </p>
           <button
             type="button"
@@ -98,8 +100,7 @@ export function AgentTrace({
       {confirming && (
         <div className="mt-2 text-sm">
           <p>
-            This sends your photo to Meta up to 3 more times (identify,
-            outline, close-up).
+            This sends the photo or a close-up to Meta up to {overview ? "2" : "3"} more times for {overview ? "outlining and close-up analysis" : "identification, outlining and close-up analysis"}.
           </p>
           <div className="mt-2 flex gap-2">
             <button
@@ -159,10 +160,10 @@ export function AgentTrace({
               <div className="mt-2 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => result.focusId && onSelect(result.focusId)}
+                  onClick={() => result.focusId && onSelect(result)}
                   className="border border-ink bg-ink px-4 py-2 font-mono text-xs text-white"
                 >
-                  SELECT {result.focusLabel.toUpperCase()}
+                  USE SUGGESTION
                 </button>
                 <button
                   type="button"
