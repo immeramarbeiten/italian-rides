@@ -38,3 +38,5 @@ video/assets/
 video/clips/
 video/*.mp4
 video/*.wav
+# draft renders kept next to the project for easy viewing, never committed
+italian-rides-film-draft.mp4

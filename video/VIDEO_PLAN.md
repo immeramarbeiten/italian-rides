@@ -33,7 +33,7 @@ Each scene below `film.py` builds from real data — no human recording:
 
 1. speak (0:08–0:25): fixture photo + “SAID: my mirror is loose” bar fade.
 2. tap (0:25–0:50): positional pulse + the real decoded SAM mask, rendered
-   exactly like the app (dashed box, 0.16 fill).
+   like the app (translucent mask fill, dashed frame added for legibility).
 3. agent (0:50–1:15): the 5 real agent steps appearing + focus card.
 4. ref (1:15–1:40): photo → generated-study crossfade + honesty caption.
 5. guided (1:40–2:05): real question copy → stem highlight → sub-detail.
