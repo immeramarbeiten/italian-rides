@@ -17,9 +17,9 @@
   <a href="#credits">Credits</a>
 </p>
 
-Point your camera at your Vespa and it identifies the component, outlines it on your photo, asks one guided question about the detail, and drafts the work onto your scooter's passport for you to confirm. Underneath sits a twelve-model archive — every story, spec, and procedure the mechanic reasons over. This is not an image analyzer: every suggestion must survive your confirmation, and lands — if at all — as a record you signed.
+Add a scooter photo and describe the concern. The agent chooses a visible area, asks SAM for an outline, and examines a close-up. The owner confirms the suggestion, explores prepared mirror or tyre guidance, and can create an editable workshop enquiry or a planned garage record. A twelve-model archive and an illustrative GTS assembly provide context. The archive is not yet a general retrieval source for the vision model.
 
-Built for the Meta AI Developer Hackathon, Oct 27 – Nov 4 2026. Every commit here is hackathon work. Demo video lands before the deadline.
+Built for the Meta AI Developer Hackathon, Oct 27 – Nov 4 2026. Every commit here is hackathon work. The current demo direction and capture instructions are in [video/submission](video/submission/README.md).
 
 ## Quickstart
 
@@ -50,7 +50,7 @@ The key lives server-side only (`app/api/*`); the browser never sees it.
 
 ## What's real, what's illustrative
 
-Everything here is labeled like a museum. The archive — twelve model records, specs, timelines, the 3D viewer, the garage — is real and runs today. Fitment data and repair procedures are illustrative PX-pattern content, hidden from modern scooters: always confirm part numbers and torque values against the workshop manual for your exact variant. Inspect, SAM outlines, and guided detail all call the live Meta Model API; nothing here fakes a model call. Voice mode is not built.
+Everything here is labeled like a museum. The archive — twelve model records, specs, timelines, the 3D viewer, the garage — is real and runs today. Fitment data and repair procedures are illustrative PX-pattern content, hidden from modern scooters: always confirm part numbers and torque values against the workshop manual for your exact variant. Image identification, SAM outlining and the agent's close-up analysis use the live Meta Model API. Guided questions, source locators and bounded actions are prepared content. Optional voice transcription is available in the upload form; it is not a conversational voice agent. Garage and inspection records are stored in this browser.
 
 ## Inside the repo
 
@@ -64,7 +64,7 @@ public/      studio plates, documentary photos, 3D models (all credited)
 
 ## The archive
 
-Twelve records, 1946–2018: Vespa 98, 125, GS 150, 50, SS180, Rally 200, Primavera, PX, T5, ET4, GTS, 946, Elettrica. Studio illustration plates, credited documentary photographs, an Inside-the-Vespa systems guide, fault finder, glossary, and club directory.
+Twelve milestone records from 1946 to 2018, spanning the Vespa 98 through the Elettrica. Studio illustration plates, credited documentary photographs, an Inside-the-Vespa systems guide, fault finder, glossary, and club directory.
 
 ## Credits
 

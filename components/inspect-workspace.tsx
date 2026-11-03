@@ -28,6 +28,8 @@ import { AgentTrace } from "@/components/agent-trace";
 import { RequestDraft } from "@/components/request-draft";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { SamOverlay } from "@/lib/sam-parse";
+import { inspectionLabel } from "@/lib/inspection-label";
 
 export function InspectWorkspace() {
   const params = useParams<{ sessionId: string }>();
@@ -36,6 +38,8 @@ export function InspectWorkspace() {
   const [unidentified, setUnidentified] = useState(false);
   const [evicted, setEvicted] = useState(0);
   const [outlineControls, setOutlineControls] = useState<HTMLDivElement | null>(null);
+  const [mode, setMode] = useState<"agent" | "manual">("agent");
+  const [preview, setPreview] = useState<SamOverlay | null>(null);
 
   useEffect(() => {
     setSession(getSession(params.sessionId));
@@ -88,6 +92,12 @@ export function InspectWorkspace() {
         m.m === FAMILIES.find((f) => f.label === session.family)?.archive,
     )?.slug;
   const mapped = session.status === "mapped";
+  const displayLabel = inspectionLabel(session);
+  const componentDescription = /tyre|tire/i.test(displayLabel)
+    ? "The tyre connects the wheel to the road. Use the checks below to decide what needs an in-person inspection."
+    : /mirror/i.test(displayLabel)
+      ? "The mirror provides the rider’s rearward view. Inspect the glass, stalk and mounting as separate areas."
+      : selected ? `${COMPONENT_INFO[selected.id].function.split(". ")[0]}.` : "";
   const ai = session.ai ?? null;
   const action = selected ? (BOUNDED_ACTIONS[selected.id] ?? null) : null;
   const rankedIds = rankPartsByHints(ai ? ai.components : null);
@@ -95,6 +105,7 @@ export function InspectWorkspace() {
 
   function select(id: VespaPartId | null) {
     setUnidentified(false);
+    setPreview(null);
     // Assembly choice wins: a mask-bound pilot pick for another component
     // must not linger and contradict the Garage draft.
     update({
@@ -119,15 +130,16 @@ export function InspectWorkspace() {
       {evicted > 0 && <p role="note" className="mt-2 text-sm text-amber-800">Storage was full; {evicted} older inspection{evicted === 1 ? " was" : "s were"} removed.</p>}
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,1fr)]">
         <div className="min-w-0">
-          <SamOutliner imageDataUrl={session.imageDataUrl} fileName={session.fileName} hints={(ai?.components ?? []).slice(0, 3).map(c => ({id:c.id,label:VESPA_PARTS.find(p=>p.id===c.id)?.label ?? c.label}))} initial={session.sam ?? null} onSave={sam => update({sam,pilotSelection:null})} controlsTarget={outlineControls} interactive={!mapped}/>
-          <p className="mt-2 text-xs text-zinc-500">{session.fileName} · {mapped ? "Choose Change to adjust the selection." : "Click a part of the photo to outline it."}</p>
+          <SamOutliner imageDataUrl={session.imageDataUrl} fileName={session.fileName} hints={(ai?.components ?? []).slice(0, 3).map(c => ({id:c.id,label:VESPA_PARTS.find(p=>p.id===c.id)?.label ?? c.label}))} initial={preview ?? session.sam ?? null} onSave={sam => update({sam,pilotSelection:null})} controlsTarget={outlineControls} interactive={!mapped && mode === "manual"}/>
+          <p className="mt-2 text-xs text-zinc-500">{session.fileName} · {mapped ? "Choose Change to adjust the selection." : mode === "agent" ? "Your photo stays in view as the agent works." : "Click a part of the photo to outline it."}</p>
         </div>
         <aside className="min-w-0 lg:max-h-[calc(100dvh-9rem)] lg:overflow-y-auto" aria-label="Inspection steps">
           <div className="border border-zinc-200 bg-white p-4 sm:p-5">
-            <div className="flex items-baseline justify-between gap-2"><div><p className="text-xs font-medium text-zinc-500">{mapped ? "COMPONENT SELECTED" : "01 / FIND THE PART"}</p><h1 className="mt-1 text-xl font-semibold">{mapped && selected ? selected.label : "What are we looking at?"}</h1></div>{mapped && <button type="button" onClick={() => update({status:"selected"})} className="text-xs underline">Change</button>}</div>
-            {!mapped && <p className="mt-2 text-sm text-zinc-600">Tap the photo to outline a part, or choose one below. You make the final selection.</p>}
-            {!mapped && <div ref={setOutlineControls} />}
-            {!mapped && <>
+            <div className="flex items-baseline justify-between gap-2"><div><p className="text-xs font-medium text-zinc-500">{mapped ? "COMPONENT SELECTED" : "01 / FIND THE PART"}</p><h1 className="mt-1 text-xl font-semibold">{mapped && selected ? displayLabel : "What are we looking at?"}</h1></div>{mapped && <button type="button" onClick={() => {setMode("manual");setPreview(null);update({status:"selected"})}} className="text-xs underline">Change</button>}</div>
+            {!mapped && <div className="mt-4 flex gap-2 border-b border-zinc-200 pb-3" role="group" aria-label="Inspection method"><button type="button" aria-pressed={mode === "agent"} onClick={()=>setMode("agent")} className={cn("px-3 py-2 text-sm",mode === "agent" && "bg-ink text-white")}>Agent inspection</button><button type="button" aria-pressed={mode === "manual"} onClick={()=>{setMode("manual");setPreview(null)}} className={cn("px-3 py-2 text-sm",mode === "manual" && "bg-ink text-white")}>Choose manually</button></div>}
+            {!mapped && mode === "agent" && <AgentTrace imageDataUrl={session.imageDataUrl} concern={session.concern ?? ""} overview={ai} onPreview={setPreview} onSelect={result => { if (!result.focusId) return; setUnidentified(false); update({selectedPart:result.focusId, status:"mapped", subPart:null, guidedAnswer:null, pilotSelection:null, agentObservation:{focusId:result.focusId,targetLabel:result.focusLabel,detailNote:result.detailNote,band:result.band}, ...(result.mask?.svgPath ? {sam:{matches:[result.mask], side:"", label:result.focusLabel}} : {sam:null}), ...(result.overview ? {ai:result.overview} : {})}); }}/>}
+            {!mapped && mode === "manual" && <div ref={setOutlineControls} />}
+            {!mapped && mode === "manual" && <>
               <div className="mt-3 border-t border-zinc-200 pt-3">
                 <p className="mb-2 text-xs font-medium text-zinc-600">02 / CHOOSE A COMPONENT</p>
                 <div className="grid grid-cols-2 gap-2">{rankedIds.map(id => { const part = VESPA_PARTS.find(x => x.id === id)!; const active = selectedId === id; const conf = ai?.components.find(c => c.id === id)?.confidence; return <button key={id} type="button" onClick={() => select(id)} aria-pressed={active} className={cn("border px-3 py-2 text-left text-sm", active ? "border-ink bg-ink text-white" : "border-zinc-200 hover:border-ink")}><span className="block font-medium">{part.label}</span>{topHint === id && <span className="block text-xs opacity-70">Suggested{conf !== undefined ? ` · ${confidenceBand(conf)} model confidence` : ""}</span>}</button>; })}</div>
@@ -135,16 +147,16 @@ export function InspectWorkspace() {
                 <button type="button" onClick={() => {select(null);setUnidentified(true);}} className="mt-3 text-xs text-zinc-500 underline">I can’t identify the part</button>
                 {unidentified && <p className="mt-2 text-sm text-zinc-600">Try another angle or <Link href="/archive" className="underline">browse the archive</Link>.</p>}
               </div>
-              <details className="mt-4 border-t border-zinc-200 pt-3"><summary className="cursor-pointer text-sm text-zinc-600">More: agent-assisted inspection</summary><AgentTrace imageDataUrl={session.imageDataUrl} concern={session.concern ?? ""} overview={ai} onSelect={result => { if (!result.focusId) return; setUnidentified(false); update({selectedPart:result.focusId, status:"selected", subPart:null, guidedAnswer:null, pilotSelection:null, agentObservation:{focusId:result.focusId,detailNote:result.detailNote,band:result.band}, ...(result.mask?.svgPath ? {sam:{matches:[result.mask], side:"", label:result.focusLabel}} : {sam:null}), ...(result.overview ? {ai:result.overview} : {})}); }}/></details>
+
             </>}
             {mapped && selected && <>
-              <p className="mt-2 text-sm text-zinc-600">{COMPONENT_INFO[selected.id].function.split(". ")[0]}.</p>
+              <p className="mt-2 text-sm text-zinc-600">{componentDescription}</p>
               {session.agentObservation?.focusId === selected.id && session.agentObservation.detailNote && <p className="mt-3 bg-zinc-50 p-3 text-sm">Agent observation: {session.agentObservation.detailNote} <span className="text-zinc-500">· Unverified; confirm in person.</span></p>}
               {action && <details className="mt-4 border-t border-zinc-200 pt-3"><summary className="cursor-pointer text-sm font-medium">{action.title} · source and guidance</summary><ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-700">{action.lines.map(l=><li key={l}>{l}</li>)}</ul><p className="mt-2 text-xs text-zinc-500">Source: {action.source}</p></details>}
               <details className="mt-4 border-t border-zinc-200 pt-3"><summary className="cursor-pointer text-sm font-medium">Explore this component</summary><GuidedDetail part={selected.id} concern={session.concern} subPart={session.subPart ?? null} guidedAnswer={session.guidedAnswer ?? null} onAnswer={(guidedAnswer,subPart)=>update({guidedAnswer,subPart})} onSelectSub={subPart=>update({subPart})}/></details>
               {slug && (slug !== "vespa-gts-granturismo" || selected.id === "handlebar") && <Link href={`/models/${slug}/viewer?component=${selected.id}`} className={cn(buttonVariants({}), "mt-4 w-full")}>Explore the 3D study <ArrowRight aria-hidden /></Link>}
               {pxGuidesApply(session.family || "") && <Link href={`/repairs/${selected.id}`} className={cn(buttonVariants({variant:"outline"}), "mt-2 w-full")}>Explore repair information</Link>}
-              <RequestDraft session={session} componentLabel={selected.label}/>
+              <RequestDraft key={`${displayLabel}:${session.guidedAnswer ?? ""}`} session={session} componentLabel={displayLabel}/>
               <Link href={`/garage?from=${session.id}`} className={cn(buttonVariants({variant:"outline"}), "mt-2 w-full")}>Record in My Garage</Link>
             </>}
           </div>

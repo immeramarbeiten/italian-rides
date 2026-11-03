@@ -5,9 +5,10 @@ import { ArrowLeft, ArrowRight, Plus } from "lucide-react";
 import { useGarage } from "@/lib/store";
 import { ARCHIVE_MODELS } from "@/lib/models";
 import {
-  FRIEZE_ART,
+  FRIEZE_PHOTO,
+  FRIEZE_CREDIT,
+  FRIEZE_SOURCE,
 } from "@/lib/frieze-art";
-import { VespaLineArt } from "@/components/vespa-lineart";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,11 @@ export function VehiclePassport({ vehicleId }: { vehicleId: string }) {
   }
 
   const slug = ARCHIVE_MODELS.find((m) => m.m === v.model)?.slug;
-  const art = FRIEZE_ART[v.model];
+  // A family match is a reference image, not identification of this scooter.
+  const referenceModel = FRIEZE_PHOTO[v.model] ? v.model : /\b(?:vespa\s+)?gts\b/i.test(v.model) ? "Vespa GTS/Granturismo" : null;
+  const photo = referenceModel ? FRIEZE_PHOTO[referenceModel] : null;
+  const credit = referenceModel ? FRIEZE_CREDIT[referenceModel] : null;
+  const source = referenceModel ? FRIEZE_SOURCE[referenceModel] : null;
   const events = serviceLog.filter((e) => e.scooterId === v.id);
 
   return (
@@ -46,22 +51,21 @@ export function VehiclePassport({ vehicleId }: { vehicleId: string }) {
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[1.3fr_1fr]">
         <div>
-          {art ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={art}
-              alt={`${v.model} reference illustration`}
-              className="aspect-[4/3] w-full border border-line bg-white object-cover"
-            />
+          {photo ? (
+            <figure>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo} alt={`${referenceModel} reference photograph`} className="aspect-[4/3] w-full bg-zinc-100 object-cover" />
+              <figcaption className="mt-2 text-xs text-zinc-600">
+                {referenceModel === "Vespa GTS/Granturismo" ? "GTS 300 reference photo; your scooter may differ." : "Reference photo; your scooter may differ."}{" "}
+                {credit && source && <a href={source} className="underline" target="_blank" rel="noreferrer">{credit} ↗</a>}
+              </figcaption>
+            </figure>
           ) : (
-            <div className="border border-line bg-white p-10">
-              <VespaLineArt className="text-ink" />
+            <div className="flex aspect-[4/3] flex-col justify-end bg-zinc-100 p-8">
+              <p className="text-xs uppercase tracking-widest text-zinc-500">Your garage</p>
+              <p className="mt-2 text-2xl font-semibold">{v.model}</p>
+              <p className="mt-1 text-sm text-zinc-600">No reference photograph available yet.</p>
             </div>
-          )}
-          {art && (
-            <p className="mt-2 font-mono text-[11px] text-zinc-500">
-              REFERENCE ILLUSTRATION — NOT THIS ACTUAL SCOOTER
-            </p>
           )}
         </div>
         <div>

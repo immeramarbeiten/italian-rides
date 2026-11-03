@@ -7,6 +7,11 @@ describe("outlinePhrase", () => {
     assert.equal(outlinePhrase("wheels", "x"), "wheel");
     assert.equal(outlinePhrase("legshield", "x"), "front legshield");
   });
+  it("targets the mirror rather than grips when the concern names a mirror", () => {
+    assert.equal(outlinePhrase("handlebar", "Handlebar", "the mirror glass is cracked"), "mirror");
+    assert.equal(outlinePhrase("wheels", "Wheels", "tyre tread looks worn"), "front tyre");
+    assert.equal(outlinePhrase("handlebar", "Handlebar", "brake lever feels wrong"), "handlebar");
+  });
   it("falls back to the given label for unknown ids", () => {
     assert.equal(outlinePhrase("headlight", "front lamp"), "front lamp");
   });

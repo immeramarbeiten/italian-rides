@@ -1,3 +1,5 @@
+> Superseded by `submission/STORYBOARD.md` and `submission/RECORDING.md`. This earlier plan is kept for reference only.
+
 # Italian Rides — Video Plan (3:03 draft)
 
 Pipeline: `film.py` renders cards + app scenes + narration + music to MP4.

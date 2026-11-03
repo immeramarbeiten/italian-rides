@@ -40,3 +40,10 @@ video/*.mp4
 video/*.wav
 # draft renders kept next to the project for easy viewing, never committed
 italian-rides-film-draft.mp4
+storyboard-v1.mp4
+
+# New submission capture outputs (scripts and manifests remain tracked)
+video/submission/captures/
+video/submission/output/
+video/submission/clips/
+video/submission/__pycache__/

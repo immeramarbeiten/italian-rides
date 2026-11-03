@@ -15,7 +15,9 @@ const PHRASE: Record<string, string> = {
 };
 
 /** Short noun SAM understands for an assembly id. */
-export function outlinePhrase(id: string, fallback: string): string {
+export function outlinePhrase(id: string, fallback: string, concern = ""): string {
+  if (id === "handlebar" && /\b(mirror|glass|stalk|stem)\b/i.test(concern)) return "mirror";
+  if (id === "wheels" && /\b(tyre|tire|tread|sidewall|puncture)\b/i.test(concern)) return "front tyre";
   return PHRASE[id] ?? fallback;
 }
 
@@ -36,7 +38,9 @@ export function pickFocus(
   concern: string,
   suggest: (words: string, part: VespaPartId) => string | null,
 ): FocusPick {
-  const matches = components.filter(c => suggest(concern, c.id as VespaPartId) !== null);
+  const named = /\bmirror\b/i.test(concern) ? "handlebar" : /\b(tyre|tire|tread|sidewall)\b/i.test(concern) ? "wheels" : null;
+  const namedCandidate = components.find(c => c.id === named);
+  const matches = namedCandidate ? [namedCandidate] : components.filter(c => suggest(concern, c.id as VespaPartId) !== null);
   const top = matches.length === 1 ? matches[0] : components[0];
   if (!top) return { id: null, label: "", suggestedAnswer: null };
   const id = top.id as VespaPartId;

@@ -1,3 +1,5 @@
+> Current submission direction: [submission/README.md](submission/README.md). The workflow below is the earlier renderer and is retained only for reference.
+
 # Video — reproducible demo film
 
 `VIDEO_PLAN.md` is the storyboard + script + shot list. This folder renders it.

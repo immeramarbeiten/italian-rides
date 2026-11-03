@@ -87,3 +87,9 @@ body {
     animation: none !important;
   }
 }
+
+/* Optional recording presentation; product behavior and model output stay live. */
+.recording-presentation, .recording-presentation * { cursor: none !important; }
+.recording-presentation nextjs-portal { display: none; }
+@keyframes presentation-click { from { transform: scale(.35); opacity:.7; } to { transform:scale(1.3);opacity:0; } }
+.presentation-click { animation: presentation-click .55s ease-out both; }

@@ -32,8 +32,8 @@ const SAMPLES = [
 
 const FIXTURES = [
   { label: "Rusty exhaust", url: "/fixtures/damage-rusty-exhaust.png", name: "fixture-rusty-exhaust.png" },
-  { label: "Mirror · simulated crack", url: "/fixtures/ai-gts-mirror-cracked-simulated-v2.png", name: "ai-fixture-mirror-cracked-simulated.png" },
-  { label: "Front tyre · simulated wear", url: "/fixtures/ai-gts-front-tyre-worn-simulated-v2.png", name: "ai-fixture-front-tyre-worn-simulated.png" },
+  { label: "Mirror · cracked glass", url: "/fixtures/ai-gts-mirror-cracked-simulated-v2.png", name: "ai-fixture-mirror-cracked-simulated.png" },
+  { label: "Front tyre · worn tread", url: "/fixtures/ai-gts-front-tyre-worn-simulated-v2.png", name: "ai-fixture-front-tyre-worn-simulated.png" },
   { label: "Dented cowl", url: "/fixtures/damage-dented-cowl.png", name: "fixture-dented-cowl.png" },
   { label: "Scored disc", url: "/fixtures/damage-scored-disc.png", name: "fixture-scored-disc.png" },
   { label: "Corroded battery", url: "/fixtures/damage-corroded-battery.png", name: "fixture-corroded-battery.png" },
@@ -338,11 +338,11 @@ export function PhotoUploader({
       </details>
 
       <details className="mt-3">
-        <summary className="cursor-pointer text-sm font-medium">Try a simulated example</summary>
+        <summary className="cursor-pointer text-sm font-medium">Try a demo image</summary>
         <p className="mt-2 font-mono text-[11px] tracking-[0.1em] text-zinc-600">
-          AI-GENERATED FIXTURES
+          AI-GENERATED DEMO IMAGES
         </p>
-        <p className="mt-1 text-xs text-zinc-600">Simulated examples: details and damage are invented, and do not establish a component’s condition or exact vehicle fit.</p>
+        <p className="mt-1 text-xs text-zinc-600">AI-generated demo images: details and damage are illustrative and do not establish a real scooter’s condition or fitment.</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {FIXTURES.map((s) => (
             <button

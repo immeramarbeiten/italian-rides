@@ -59,6 +59,7 @@ export async function runInspectAgent(
     imageDataUrl: string;
     concern: string;
     initialOverview?: AiResult | null;
+    onMask?: (mask: SamMatch, label: string) => void;
     cropToBox: (box: Box, frame: {w: number; h: number}) => Promise<string | null>;
   },
   onEvent: (e: AgentEvent) => void,
@@ -113,12 +114,15 @@ export async function runInspectAgent(
     detail: `Focus: ${pick.label}${pick.suggestedAnswer ? " (your words point here too)" : ""}.`,
   });
 
+  const target = outlinePhrase(pick.id, pick.label, args.concern);
+  const focusLabel = target === "mirror" ? "Mirror" : target === "front tyre" ? "Front tyre" : pick.label;
+
   // 3. Outline.
   emit({ step: "outline", status: "start", detail: `Asking SAM to outline it…` });
   const outlined = await postJson<{ matches?: SamMatch[] }>("/api/sam", {
     image: args.imageDataUrl,
     mode: "phrase",
-    phrase: outlinePhrase(pick.id, pick.label),
+    phrase: target,
   });
   const mask = outlined?.matches?.find(m => !!m.svgPath) ?? null;
   if (!mask) {
@@ -128,37 +132,40 @@ export async function runInspectAgent(
       ...empty,
       overview,
       focusId: pick.id,
-      focusLabel: pick.label,
+      focusLabel,
       band: confidenceBand(overview.components.find(c => c.id === pick.id)?.confidence ?? 0),
       trace,
     };
   }
-  emit({ step: "outline", status: "done", detail: "Mask drawn." });
+  args.onMask?.(mask, focusLabel);
+  emit({ step: "outline", status: "done", detail: `${focusLabel} outlined on your photo.` });
 
   // 4. Zoom: crop to the mask and re-identify the close-up.
   emit({ step: "zoom", status: "start", detail: "Zooming in for a closer look…" });
   const crop = await args.cropToBox(mask.box, mask.frame);
   let detailNote = "";
+  let zoomSucceeded = false;
   if (crop) {
     const zoomed = await postJson<{ model?: unknown; result?: unknown }>(
       "/api/inspect",
       { image: crop, concern: args.concern },
     );
     const detail = zoomed ? parseAiResult(zoomed.result, "?") : null;
+    zoomSucceeded = detail !== null;
     const cond = detail?.components.find((c) => c.id === pick.id)?.condition;
     if (cond) detailNote = cond;
   }
   emit({
     step: "zoom",
-    status: "done",
-    detail: detailNote ? `Close-up: ${detailNote}.` : "Close-up added nothing new.",
+    status: zoomSucceeded ? "done" : "fail",
+    detail: detailNote ? `Close-up: ${detailNote}.` : zoomSucceeded ? "No additional visible finding in the close-up." : "Close-up analysis unavailable; keeping the outline and original suggestion.",
   });
 
   // 5. Conclude.
   emit({ step: "conclude", status: "done", detail: "Suggestion ready — you confirm." });
   return {
     focusId: pick.id,
-    focusLabel: pick.label,
+    focusLabel,
     band: confidenceBand(overview.components.find(c => c.id === pick.id)?.confidence ?? 0),
     mask,
     detailNote,

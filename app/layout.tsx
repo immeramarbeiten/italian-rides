@@ -3,6 +3,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SkidFooter } from "@/components/skid-footer";
 import { Providers } from "@/components/providers";
+import { PresentationPointer } from "@/components/presentation-pointer";
 
 export const metadata: Metadata = {
   title: "Italian Rides — Eighty Years of the Wasp",
@@ -19,6 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
+          <PresentationPointer />
           <SiteHeader />
           <main className="mx-auto w-full max-w-6xl px-4 pb-20 sm:px-6">
             {children}
