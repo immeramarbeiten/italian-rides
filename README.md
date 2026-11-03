@@ -35,6 +35,13 @@ cp .env.example .env.local   # paste your key — never commit this file
 ```
 
 The key lives server-side only (`app/api/*`); the browser never sees it.
+Without a key the app still runs: AI routes answer an honest 503 and the
+inspect flow falls back instead of crashing.
+
+```bash
+npm test          # unit suite (lib/)
+npm run build     # production build check
+```
 
 ## The loop
 
