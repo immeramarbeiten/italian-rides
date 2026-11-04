@@ -1,0 +1,21 @@
+That crack is obvious. Finding the right next step takes more work: identify the part, check the scooter, and explain the problem to someone who can help.
+
+Italian Rides connects that journey. An owner adds a photo and describes the problem. This prototype brings the workflow into a focused Vespa GTS reference, with the scooter details kept alongside the image.
+
+The agent begins with the photo analysis, then chooses a focus from the visible components and the owner's concern. Here, the concern is the cracked mirror. It asks SAM to isolate that part, then crops the actual photo for a closer look. Each step is visible.
+
+The outline comes from the model response. The close-up goes back to the vision model, so the agent can examine the selected area. If that call adds no useful detail, the app says so. The result is a suggestion grounded in this photo, ready for the owner to review.
+
+The owner confirms the suggested component once. That carries the selection and its outline into the next step. The agent's observations stay attached to the inspection, with the original concern and photo.
+
+A prepared three-dimensional study helps explain where the mirror belongs. Rotate the assembly, separate its major parts, and inspect the instruments. It is an illustrative reference for understanding the machine.
+
+The important output is a useful next action. The owner can read the prepared guidance and its manual references, then open an editable workshop request. It includes the scooter details, selected area and concern. Any AI observation is identified as unverified. The workshop is asked to check fitment and advise on repair or replacement.
+
+The same inspection can become a record in the garage. The owner chooses the scooter, records what they actually decided, and saves it as planned work. That creates continuity between the photo, the request and the scooter's history, without recording a repair as completed.
+
+The second prepared path covers the front tyre. It leads to documented pressure and wear checks. A photograph can guide attention; pressure still needs a gauge, and suitability still depends on the exact scooter.
+
+Underneath is a bounded workflow: vision, segmentation, close-up analysis, prepared evidence, and a reviewed action. Today's prototype covers mirror and tyre workflows, with records stored in this browser.
+
+Italian Rides. From the machine you see to the next step you can take.
